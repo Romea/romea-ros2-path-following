@@ -42,8 +42,7 @@ make_path_following(
     make_longitudinal_control<LonCtrl>(
       node, full_name("longitudinal_control", longitudinal_control_name)),
     make_sliding_observer<SlObs>(
-      node, full_name("sliding_observer", sliding_observer_name)),
-    std::make_shared<core::SimpleFileLogger>("/tmp/toto.txt")
+      node, full_name("sliding_observer", sliding_observer_name))
   );
 }
 
@@ -61,10 +60,8 @@ make_path_following(
     make_lateral_control<LatCtrl>(
       node, full_name("lateral_control", lateral_control_name)),
     make_longitudinal_control<LonCtrl>(
-      node, full_name("longitudinal_control", longitudinal_control_name)),
-    std::make_shared<core::SimpleFileLogger>("/tmp/toto.txt")
+      node, full_name("longitudinal_control", longitudinal_control_name))
   );
-
 }
 
 template<typename CommandType>

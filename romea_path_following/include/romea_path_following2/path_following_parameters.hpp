@@ -68,6 +68,7 @@ core::MobileBaseInertia get_inertia(std::shared_ptr<Node> node)
 template<typename CommandLimits, typename Node>
 void declare_command_limits(std::shared_ptr<Node> node)
 {
+  std::cout << "declare_command_limits 2" << std::endl;
   declare_command_limits<CommandLimits>(node, "base.command_limits");
 }
 
@@ -117,6 +118,46 @@ template<typename Node>
 std::string get_selected_sliding_observer(std::shared_ptr<Node> node)
 {
   return get_parameter<std::string>(node, "sliding_observer", "selected");
+}
+
+template<typename Node>
+void declare_joystick_start_button_mapping(std::shared_ptr<Node> node)
+{
+  declare_parameter<int>(node, "joystick", "start");
+}
+
+template<typename Node>
+void declare_joystick_stop_button_mapping(std::shared_ptr<Node> node)
+{
+  declare_parameter<int>(node, "joystick", "stop");
+}
+
+template<typename Node>
+void declare_joystick_mapping(std::shared_ptr<Node> node)
+{
+  declare_joystick_start_button_mapping(node);
+  declare_joystick_stop_button_mapping(node);
+}
+
+template<typename Node>
+int get_joystick_start_button_mapping(std::shared_ptr<Node> node)
+{
+  return get_parameter<int>(node, "joystick", "start");
+}
+
+template<typename Node>
+int get_joystick_stop_button_mapping(std::shared_ptr<Node> node)
+{
+  return get_parameter<int>(node, "joystick", "stop");
+}
+
+template<typename Node>
+std::map<std::string, int> get_joystick_mapping(std::shared_ptr<Node> node)
+{
+  return {
+    {"start", get_joystick_start_button_mapping(node)},
+    {"stop", get_joystick_stop_button_mapping(node)},
+  };
 }
 
 }  // namespace ros2

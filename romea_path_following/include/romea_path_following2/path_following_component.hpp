@@ -3,7 +3,8 @@
 
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 
-#include "romea_path_following/path_following.hpp"
+#include "romea_joystick_utils/joystick.hpp"
+#include "romea_path_following2/path_following.hpp"
 
 namespace romea
 {
@@ -27,6 +28,7 @@ public:
 private:
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
   std::unique_ptr<PathFollowingBase> control_;
+  std::unique_ptr<Joystick> joystick_;
   bool autostart_;
 };
 

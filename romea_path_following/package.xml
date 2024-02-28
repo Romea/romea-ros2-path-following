@@ -16,6 +16,7 @@
 
   <depend>romea_mobile_base_utils</depend>
   <depend>romea_mobile_base_msgs</depend>
+  <depend>romea_joystick_utils</depend>
   <depend>romea_path_utils</depend>
   <depend>romea_path_msgs</depend>
   <depend>romea_core_control</depend>

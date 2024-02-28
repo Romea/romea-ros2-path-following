@@ -1,4 +1,5 @@
 //romea
+#include "romea_common_utils/params/algorithm_parameters.hpp"
 #include "romea_mobile_base_utils/params/command_interface_parameters.hpp"
 
 // local
@@ -22,27 +23,33 @@ template<class CommandType>
 PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node)
 : node_(std::move(node))
 {
-  declare_parameter_with_default(node_, "joy_start_button", XBOX_X_BUTTON);
-  declare_parameter_with_default(node_, "joy_stop_button", XBOX_B_BUTTON);
-
   declare_setpoint(node_);
   declare_selected_lateral_control(node_);
   declare_selected_sliding_observer(node_);
-  declare_command_limits<CommandLimits>(node);
+  std::cout << " PathFollowing constructor 5" << std::endl;
+  // declare_command_limits<CommandLimits>(node);
+  std::cout << " PathFollowing constructor 6" << std::endl;
   declare_command_interface_configuration(node_, "cmd_output");
-  //   declare_parameter_with_default(node_, "use_path_velocity", false);
+  declare_log_directory(node_);
+  declare_debug(node_);
 }
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
 void PathFollowing<CommandType>::configure()
 {
-  node_->get_parameter("joy_start_button", joy_start_button_id_);
-  node_->get_parameter("joy_stop_button", joy_stop_button_id_);
-
   setpoint_.store(get_setpoint(node_));
+  std::cout << "lateral_control: " << get_selected_lateral_control(node_) << std::endl;
+  std::cout << "sliding observer: " << get_selected_sliding_observer(node_) << std::endl;
+
   path_following_ = PathFollowingFactory<CommandType>::make(
     node_, get_selected_lateral_control(node_), get_selected_sliding_observer(node_));
+
+  if (get_debug(node_)) {
+    std::cout << get_log_filename(node_) << std::endl;
+    logger_ = std::make_shared<core::SimpleFileLogger>(get_log_filename(node_));
+    path_following_->registerLogger(logger_);
+  }
 
   command_limits_.store(get_command_limits<CommandLimits>(node_));
   auto interface_config = get_command_interface_configuration(node_, "cmd_output");
@@ -57,20 +64,20 @@ void PathFollowing<CommandType>::configure()
   odometry_sub_ = node_->create_subscription<OdometryMeasureMsg>(
     "odometry", reliable(1), std::move(odom_cb));
 
-  auto joystick_cb = std::bind(&PathFollowing::process_joystick_, this, _1);
-  joystick_sub_ = node_->create_subscription<sensor_msgs::msg::Joy>(
-    "joy", reliable(1), std::move(joystick_cb));
-
 }
+
 //-----------------------------------------------------------------------------
 template<typename CommandType>
 void PathFollowing<CommandType>::activate()
 {
+  path_following_->reset();
+  cmd_interface_->start();
 }
 
 template<class CommandType>
 void PathFollowing<CommandType>::deactivate()
 {
+  cmd_interface_->stop(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,32 +93,26 @@ void PathFollowing<CommandType>::process_matching_info_(
   romea_path_msgs::msg::PathMatchingInfo2D::ConstSharedPtr msg)
 {
   core::Twist2D filtered_twist = to_romea(msg->twist);
-  std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
+  // std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
+  core::PathMatchedPoint2D matched_point = to_romea(msg->matched_points)[0];
 
   if (cmd_interface_->is_started()) {
 
-    auto command = path_following_->computeCommand(
-      setpoint_.load(), command_limits_.load(), matchedPoints[0],
-      odometry_measure_.load(), filtered_twist);
+    if (matched_point.frenetPose.curvilinearAbscissa > 0 &&
+      matched_point.frenetPose.curvilinearAbscissa < msg->path_length)
+    {
+      auto command = path_following_->computeCommand(
+        setpoint_.load(), command_limits_.load(), matched_point,
+        odometry_measure_.load(), filtered_twist);
 
-    cmd_interface_->send_command(command);
-    // logger_->writeRow();
-  }
-}
+      cmd_interface_->send_command(command);
 
-//-----------------------------------------------------------------------------
-template<class CommandType>
-void PathFollowing<CommandType>::process_joystick_(sensor_msgs::msg::Joy::ConstSharedPtr msg)
-{
-  if (msg->buttons[joy_start_button_id_]) {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("joystick"), "start button");
-    path_following_->reset();
-    cmd_interface_->start();
-  }
-
-  if (msg->buttons[joy_stop_button_id_]) {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("joystick"), "stop button");
-    cmd_interface_->stop(true);
+      if (logger_) {
+        logger_->writeRow();
+      }
+    } else {
+      cmd_interface_->send_null_command();
+    }
   }
 }
 

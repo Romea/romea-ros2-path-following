@@ -13,6 +13,7 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 
 // romea
+// #include "romea_joystick_utils/joystick.hpp"
 #include "romea_common_utils/conversions/twist2d_conversions.hpp"
 #include "romea_mobile_base_utils/control/command_interface.hpp"
 #include "romea_mobile_base_utils/control/command_traits.hpp"
@@ -62,23 +63,19 @@ protected:
 
   void process_odometry_(const OdometryMeasureMsg & msg);
 
-  void process_joystick_(sensor_msgs::msg::Joy::ConstSharedPtr msg);
-
 protected:
   Node::SharedPtr node_;
 
   std::unique_ptr<VehiculeInterface> cmd_interface_;
   rclcpp::SubscriptionBase::SharedPtr matching_sub_;
   rclcpp::SubscriptionBase::SharedPtr odometry_sub_;
-  rclcpp::SubscriptionBase::SharedPtr joystick_sub_;
 
   core::SharedVariable<SetPoint> setpoint_;
   core::SharedVariable<CommandLimits> command_limits_;
   core::SharedVariable<OdometryMeasure> odometry_measure_;
   std::unique_ptr<core::PathFollowingBase<CommandType>> path_following_;
 
-  int joy_start_button_id_;
-  int joy_stop_button_id_;
+  std::shared_ptr<core::SimpleFileLogger> logger_;
 };
 
 }  // namespace ros2

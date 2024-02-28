@@ -1,0 +1,64 @@
+commands:
+  classic:
+    gains:
+      front_kp: 0.7
+      rear_kp: 0.5
+  predictive:
+    gains:
+      front_kp: 0.7
+      rear_kp: 0.7
+    prediction:
+      horizon: 10
+      a0: 0.1642
+      a1: 0.1072
+      b1: 1.0086
+      b2: -0.2801
+  cinematic_predictive:
+    gains:
+      front_kp: 0.5
+      rear_kp: 0.5
+  dynamic_predictive:
+    gains:
+      front_kp: 0.55
+      rear_kp: 0.5
+
+observers:
+  cinematic_linear_tangent:
+    gains:
+      lateral_deviation: -4
+      course_deviation: -2
+    filter_weights:
+      lateral_deviation: 0.9
+      course_deviation: 0.9
+      front_sliding_angle: 0.98
+      rear_sliding_angle: 0.96
+  cinematic_lyapounov:
+    gains:
+      x_deviation: -3.
+      y_deviation: -3.
+      course_deviation: -3.
+      front_sliding_angle: -1.8
+      rear_sliding_angle: -1.22
+  dynamic_back_steeping:
+    rigid_mit_gains:
+      angular_speed_deviation: -7.
+      course_deviation: -2.5
+    evolution_gains:
+      angular_speed_deviation: 2.5
+      course_deviation: 2.5
+    cornering_stiffness:
+      minimal: 200.
+      initial: 15000.
+      maximal: 80000.
+  dynamic_lyapounov:
+    gains:
+      K1: 15.
+      K2: 55.
+      K3: 12500000000.
+      K4: 50000000.
+      Kalpha: 2500000000.
+    cornering_stiffness:
+      minimal: 1000.
+      initial: 5000.
+      maximal: 30000.
+
