@@ -3,15 +3,8 @@
 #include "romea_mobile_base_utils/params/command_interface_parameters.hpp"
 
 // local
-#include "romea_path_following2/path_following.hpp"
-#include "romea_path_following2/path_following_factory.hpp"
-
-
-namespace
-{
-const int XBOX_X_BUTTON = 2;
-const int XBOX_B_BUTTON = 1;
-}  // namespace
+#include "romea_path_following/path_following.hpp"
+#include "romea_path_following/path_following_factory.hpp"
 
 namespace romea
 {

@@ -25,7 +25,7 @@
 // romea
 #include "../test/test_helper.h"
 
-#include "romea_path_following2/path_following_factory.hpp"
+#include "romea_path_following/path_following_factory.hpp"
 
 class TestPathFollowingFactory : public ::testing::Test
 {

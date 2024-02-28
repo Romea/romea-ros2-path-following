@@ -1,4 +1,4 @@
-#include "romea_path_following2/path_following_component.hpp"
+#include "romea_path_following/path_following_component.hpp"
 
 #include "romea_common_utils/params/node_parameters.hpp"
 #include "romea_core_mobile_base/info/MobileBaseType.hpp"

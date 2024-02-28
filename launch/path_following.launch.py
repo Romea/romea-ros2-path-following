@@ -70,7 +70,7 @@ def get_joystick_meta_description(context):
 def get_joystick_remapping(joystick_type):
 
     joystick_remapping_file_path = (
-        get_package_share_directory("romea_path_following2") +
+        get_package_share_directory("romea_path_following") +
         "/config/joystick/" + joystick_type + ".yaml"
     )
 
@@ -128,7 +128,7 @@ def launch_setup(context, *args, **kwargs):
 
     path_following.add_action(
         Node(
-            package="romea_path_following2",
+            package="romea_path_following",
             executable="path_following_node",
             name="path_following",
             output="screen",

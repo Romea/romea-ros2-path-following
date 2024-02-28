@@ -25,8 +25,8 @@
 // romea
 #include "../test/test_helper.h"
 
-#include "romea_path_following2/path_following_parameters.hpp"
-#include "romea_path_following2/path_following_lateral_control.hpp"
+#include "romea_path_following/path_following_parameters.hpp"
+#include "romea_path_following/path_following_lateral_control.hpp"
 
 class TestLateralControl : public ::testing::Test
 {

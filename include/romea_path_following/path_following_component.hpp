@@ -1,10 +1,12 @@
 #ifndef __PathFollowingComponent_HPP__
 #define __PathFollowingComponent_HPP__
 
+// ros
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 
+// romea
 #include "romea_joystick_utils/joystick.hpp"
-#include "romea_path_following2/path_following.hpp"
+#include "romea_path_following/path_following.hpp"
 
 namespace romea
 {

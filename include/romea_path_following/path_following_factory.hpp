@@ -5,10 +5,10 @@
 #include <string>
 
 //romea
-#include "romea_path_following2/path_following_traits.hpp"
-#include "romea_path_following2/path_following_lateral_control.hpp"
-#include "romea_path_following2/path_following_longitudinal_control.hpp"
-#include "romea_path_following2/path_following_sliding_observer.hpp"
+#include "romea_path_following/path_following_traits.hpp"
+#include "romea_path_following/path_following_lateral_control.hpp"
+#include "romea_path_following/path_following_longitudinal_control.hpp"
+#include "romea_path_following/path_following_sliding_observer.hpp"
 
 
 namespace romea

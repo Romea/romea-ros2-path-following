@@ -13,13 +13,11 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 
 // romea
-// #include "romea_joystick_utils/joystick.hpp"
 #include "romea_common_utils/conversions/twist2d_conversions.hpp"
 #include "romea_mobile_base_utils/control/command_interface.hpp"
 #include "romea_mobile_base_utils/control/command_traits.hpp"
 #include "romea_path_utils/path_matching_info_conversions.hpp"
-
-#include "romea_path_following2/path_following_factory.hpp"
+#include "romea_path_following/path_following_factory.hpp"
 
 namespace romea
 {

@@ -4,7 +4,7 @@
 // ros2
 #include "rclcpp/rclcpp.hpp"
 
-#include "romea_path_following2/path_following_parameters.hpp"
+#include "romea_path_following/path_following_parameters.hpp"
 #include \
   "romea_core_path_following/sliding_observer/SlidingObserverExtendedCinematicLinearTangent.hpp"
 #include "romea_core_path_following/sliding_observer/SlidingObserverExtendedCinematicLyapunov.hpp"
