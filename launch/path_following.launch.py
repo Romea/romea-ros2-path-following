@@ -87,6 +87,8 @@ def launch_setup(context, *args, **kwargs):
 
     joystick_name = joystick_meta_description.get_name()
 
+    print(joystick_meta_description.get_type())
+    print(joystick_meta_description.get_driver_pkg())
     joystick_mapping = joystick_buttons_remapping(
         joystick_meta_description.get_type(),
         joystick_meta_description.get_driver_pkg(),
@@ -122,7 +124,7 @@ def launch_setup(context, *args, **kwargs):
                 {"autoconfigure": True},
                 {"autostart": True},
             ],
-            remappings=[("odom", "/adap2e/localisation/filtered_odom")],
+            remappings=[("odom", "localisation/filtered_odom")],
         )
     )
 
@@ -140,7 +142,7 @@ def launch_setup(context, *args, **kwargs):
                 {"base.inertia": get_inertia(mobile_base_description)},
                 {"base.command_limits": get_command_limits(mobile_base_description)},
                 {"autoconfigure": True},
-                {"autostart": False},
+                {"autostart": True},
             ],
             remappings=[
                 ("cmd_mux/subscribe", mobile_base_name + "/cmd_mux/subscribe"),

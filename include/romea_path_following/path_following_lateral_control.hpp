@@ -1,5 +1,23 @@
-#ifndef __PathFollowingTOTO1_HPP__
-#define __PathFollowingTOTO1_HPP__
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_LATERAL_CONTROL_HPP_
+#define ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_LATERAL_CONTROL_HPP_
+
+// std
+#include <string>
+#include <memory>
 
 // ros2
 #include "rclcpp/rclcpp.hpp"
@@ -19,36 +37,6 @@ struct PathFollowingLateralControlParameters
 {
 };
 
-template<>
-struct PathFollowingLateralControlParameters<
-  core::PathFollowingLateralControlBackStepping<core::SkidSteeringCommand>>
-{
-  using LateralControl =
-    core::PathFollowingLateralControlBackStepping<core::SkidSteeringCommand>;
-  using Parameters = LateralControl::Parameters;
-
-  template<typename Node>
-  static void declare(std::shared_ptr<Node> node, const std::string & params_ns)
-  {
-    declare_parameter<double>(node, params_ns, "gains.kp");
-    declare_parameter_with_default<double>(node, params_ns, "gains.ki", 0.0);
-    declare_parameter<double>(node, params_ns, "gains.kd");
-    declare_parameter<double>(node, params_ns, "maximal_omega_d");
-    declare_parameter_with_default<double>(node, params_ns, "maximal_omega_d_integral", 0.0);
-  }
-
-  template<typename Node>
-  static Parameters get(std::shared_ptr<Node> node, const std::string & params_ns)
-  {
-    return {
-      {get_parameter<double>(node, params_ns, "gains.kp"),
-        get_parameter<double>(node, params_ns, "gains.ki"),
-        get_parameter<double>(node, params_ns, "gains.kd")},
-      get_parameter<double>(node, params_ns, "maximal_omega_d"),
-      get_parameter<double>(node, params_ns, "maximal_omega_d_integral"),
-    };
-  }
-};
 
 template<>
 struct PathFollowingLateralControlParameters<
@@ -166,6 +154,39 @@ struct PathFollowingLateralControlParameters<
   }
 };
 
+template<>
+struct PathFollowingLateralControlParameters<
+  core::PathFollowingLateralControlBackStepping<core::SkidSteeringCommand>>
+{
+  using LateralControl =
+    core::PathFollowingLateralControlBackStepping<core::SkidSteeringCommand>;
+  using Parameters = LateralControl::Parameters;
+
+  template<typename Node>
+  static void declare(std::shared_ptr<Node> node, const std::string & params_ns)
+  {
+    declare_parameter<double>(node, params_ns, "gains.kp");
+    declare_parameter_with_default<double>(node, params_ns, "gains.ki", 0.0);
+    declare_parameter<double>(node, params_ns, "gains.kd");
+    declare_parameter_with_default<double>(node, params_ns, "gains.iclamp", 0.0);
+    declare_parameter<double>(node, params_ns, "maximal_omega_d");
+  }
+
+  template<typename Node>
+  static Parameters get(std::shared_ptr<Node> node, const std::string & params_ns)
+  {
+    return {
+      {get_parameter<double>(node, params_ns, "gains.kp"),
+        get_parameter<double>(node, params_ns, "gains.ki"),
+        get_parameter<double>(node, params_ns, "gains.kd"),
+        get_parameter<double>(node, params_ns, "gains.iclamp"),
+      },
+      get_parameter<double>(node, params_ns, "maximal_omega_d")
+    };
+  }
+};
+
+
 template<typename LateralControl, typename Node>
 void declare_lateral_control_parameters(
   std::shared_ptr<Node> node,
@@ -198,7 +219,7 @@ std::shared_ptr<LateralControl> make_lateral_control(
 }  // namespace ros2
 }  // namespace romea
 
-#endif
+#endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_LATERAL_CONTROL_HPP_
 
 
 // class DynamicParameterCallbacksHandler

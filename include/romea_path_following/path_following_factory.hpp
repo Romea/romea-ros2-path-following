@@ -1,10 +1,25 @@
-#ifndef romea_PathMatchingFactory_hpp
-#define romea_PathMatchingFactory_hpp
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-//std
+#ifndef ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_FACTORY_HPP_
+#define ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_FACTORY_HPP_
+
+// std
 #include <string>
+#include <memory>
 
-//romea
+// romea
 #include "romea_path_following/path_following_traits.hpp"
 #include "romea_path_following/path_following_lateral_control.hpp"
 #include "romea_path_following/path_following_longitudinal_control.hpp"
@@ -64,10 +79,10 @@ make_path_following(
   );
 }
 
+
 template<typename CommandType>
 struct PathFollowingFactory
 {
-
 };
 
 template<>
@@ -203,19 +218,26 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
     const std::string & lateral_control_name,
-    const std::string & sliding_observer_name)
+    const std::string & sliding_observer_name,
+    bool one_axle_steering_equivalence = false)
   {
-    if (lateral_control_name == "back_stepping") {
-      if (sliding_observer_name == "none") {
-        return make_path_following<LatCtrlBackStepping, LonCtrl>(
-          node, lateral_control_name, "");
+    if (!one_axle_steering_equivalence) {
+      if (lateral_control_name == "back_stepping") {
+        if (sliding_observer_name == "none") {
+          return make_path_following<LatCtrlBackStepping, LonCtrl>(
+            node, lateral_control_name, "");
+        } else {
+          // throw
+          return nullptr;
+        }
       } else {
         // throw
         return nullptr;
       }
     } else {
-      // throw
-      return nullptr;
+      return std::make_unique<core::OneAxleSteeringEquivalence>(
+        PathFollowingFactory<core::OneAxleSteeringCommand>::make(
+          node, lateral_control_name, sliding_observer_name));
     }
   }
 
@@ -232,4 +254,4 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
 }  // namespace ros2
 }  // namespace romea
 
-#endif
+#endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_FACTORY_HPP_

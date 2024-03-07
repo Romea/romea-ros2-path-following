@@ -26,11 +26,11 @@ test_path_following_factory:
           kp: 30.0
           ki: 31.0
           kd: 32.0
-          front_kp: 33.0
-          front_kd: 34.0
-          rear_kd: 35.0
-        maximal_omega_d: 36.0
-        maximal_omega_d_integral: 37.0
+          iclamp: 33.0
+          front_kp: 34.0
+          front_kd: 35.0
+          rear_kd: 36.0
+        maximal_omega_d: 37.0
 
     sliding_observer:
       extended_cinematic:

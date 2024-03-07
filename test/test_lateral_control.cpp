@@ -67,8 +67,8 @@ TEST_F(TestLateralControl, TestLatealControlBackSteppingSkidSteeringParameters)
   EXPECT_DOUBLE_EQ(parameters.gains.KP, 30.0);
   EXPECT_DOUBLE_EQ(parameters.gains.KI, 31.0);
   EXPECT_DOUBLE_EQ(parameters.gains.KD, 32.0);
-  EXPECT_DOUBLE_EQ(parameters.maximalOmegaD, 36.0);
-  EXPECT_DOUBLE_EQ(parameters.maximalOmegaDIntegral, 37.0);
+  EXPECT_DOUBLE_EQ(parameters.gains.IClamp, 33.0);
+  EXPECT_DOUBLE_EQ(parameters.maximalOmegaD, 37.0);
 }
 
 TEST_F(TestLateralControl, TestLateralControlClassicOneAxleSteeingParameters)

@@ -71,7 +71,6 @@ TEST_F(TestLateralControl, TestLateralSlidingObserverCinematicOneAxleSteering)
   EXPECT_DOUBLE_EQ(parameters.courseDeviationFilterWeight, 0.10);
   EXPECT_DOUBLE_EQ(parameters.frontSlidingAngleFilterWeight, 0.11);
   EXPECT_DOUBLE_EQ(parameters.rearSlidingAngleFilterWeight, 0.12);
-
 }
 
 TEST_F(TestLateralControl, TestLateralSlidingObserverCinematicTwoAxleSteering)
@@ -136,7 +135,8 @@ TEST_F(TestLateralControl, TestCreateSlidingObserverCinematicOneAxleSteering)
   romea::ros2::declare_inertia_info(node, "base.inertia");
 
   using SlidingObserver =
-    romea::core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<romea::core::OneAxleSteeringCommand>;
+    romea::core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<
+    romea::core::OneAxleSteeringCommand>;
 
   EXPECT_NO_THROW(
     romea::ros2::make_sliding_observer<SlidingObserver>(node, "sliding_observer.cinematic"));
@@ -149,7 +149,8 @@ TEST_F(TestLateralControl, TestCreateSlidingObserverCinematicTwoAxleSteering)
   romea::ros2::declare_inertia_info(node, "base.inertia");
 
   using SlidingObserver =
-    romea::core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<romea::core::TwoAxleSteeringCommand>;
+    romea::core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<
+    romea::core::TwoAxleSteeringCommand>;
 
   EXPECT_NO_THROW(
     romea::ros2::make_sliding_observer<SlidingObserver>(node, "sliding_observer.cinematic"));
@@ -163,7 +164,8 @@ TEST_F(TestLateralControl, TestCreateSlidingObserverLyapunovOneAxleSteering)
   romea::ros2::declare_inertia_info(node, "base.inertia");
 
   using SlidingObserver =
-    romea::core::PathFollowingSlidingObserverExtendedCinematicLyapunov<romea::core::OneAxleSteeringCommand>;
+    romea::core::PathFollowingSlidingObserverExtendedCinematicLyapunov<
+    romea::core::OneAxleSteeringCommand>;
 
   EXPECT_NO_THROW(
     romea::ros2::make_sliding_observer<SlidingObserver>(node, "sliding_observer.lyapunov"));
@@ -176,7 +178,8 @@ TEST_F(TestLateralControl, TestCreateSlidingObserverLyapunovTwoAxleSteering)
   romea::ros2::declare_inertia_info(node, "base.inertia");
 
   using SlidingObserver =
-    romea::core::PathFollowingSlidingObserverExtendedCinematicLyapunov<romea::core::TwoAxleSteeringCommand>;
+    romea::core::PathFollowingSlidingObserverExtendedCinematicLyapunov<
+    romea::core::TwoAxleSteeringCommand>;
 
   EXPECT_NO_THROW(
     romea::ros2::make_sliding_observer<SlidingObserver>(node, "sliding_observer.lyapunov"));

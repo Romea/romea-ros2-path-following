@@ -152,6 +152,20 @@ TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveLyap
       node, "predictive", "extended_lyapunov") != nullptr);
 }
 
+TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicNoneByEquivalence)
+{
+  EXPECT_TRUE(
+    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+      node, "classic", "none", true) != nullptr);
+}
+
+TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicCinematicByEquivalence)
+{
+  EXPECT_TRUE(
+    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+      node, "classic", "extended_cinematic", true) != nullptr);
+}
+
 
 //-----------------------------------------------------------------------------
 int main(int argc, char ** argv)

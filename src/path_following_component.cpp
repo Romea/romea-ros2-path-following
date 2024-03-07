@@ -1,5 +1,24 @@
-#include "romea_path_following/path_following_component.hpp"
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
+// std
+#include <memory>
+#include <string>
+#include <utility>
+
+// romea
+#include "romea_path_following/path_following_component.hpp"
 #include "romea_common_utils/params/node_parameters.hpp"
 #include "romea_core_mobile_base/info/MobileBaseType.hpp"
 
@@ -32,63 +51,55 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
     declare_joystick_mapping(node_);
 
     auto mobile_base_type = get_parameter<std::string>(node_, "base.type");
-    std::cout << " mobile_base_type " << mobile_base_type << std::endl;
     auto command_type = core::get_command_type(mobile_base_type);
-    std::cout << " command type " << command_type << std::endl;
     if (command_type == "two_axle_steering") {
-      std::cout << " make two_axle_steering " << command_type << std::endl;
       control_ = std::make_unique<PathFollowing<core::TwoAxleSteeringCommand>>(node_);
-      std::cout << " make two_axle_steering " << command_type << std::endl;
     } else if (command_type == "one_axle_steering") {
-      std::cout << " make one_axle_steering " << command_type << std::endl;
       control_ = std::make_unique<PathFollowing<core::OneAxleSteeringCommand>>(node_);
-      std::cout << " make one_axle_steering " << command_type << std::endl;
     } else if (command_type == "skid_steering") {
-      std::cout << " make skid_steering " << command_type << std::endl;
-      control_ = std::make_unique<PathFollowing<core::OneAxleSteeringCommand>>(node_);
-      std::cout << " make skid_steering " << command_type << std::endl;
+      control_ = std::make_unique<PathFollowing<core::SkidSteeringCommand>>(node_);
     } else {
       throw std::runtime_error("Mobile base type " + mobile_base_type + " is not supported");
     }
 
-    std::cout << " factory ok" << std::endl;
     if (get_parameter<bool>(node_, "autoconfigure")) {
-      std::cout << " auto configure" << std::endl;
-
       joystick_ = std::make_unique<Joystick>(node_, get_joystick_mapping(node_));
 
       joystick_->registerButtonCallback(
-        "start", JoystickButton::PRESSED, [this]() {node_->activate();});
+        "start", JoystickButton::PRESSED, [this]()
+        {
+          std::cout << " press start " << std::endl;
+          node_->activate();
+        });
 
       joystick_->registerButtonCallback(
-        "stop", JoystickButton::PRESSED, [this]() {node_->deactivate();});
+        "stop", JoystickButton::PRESSED, [this]() {
+          std::cout << " press stop " << std::endl;
+          node_->deactivate();
+        });
 
       auto state = node_->configure();
       if (get_parameter<bool>(node_, "autostart") && state.label() == "inactive") {
-        std::cout << " auto start" << std::endl;
         node_->activate();
       }
     }
-
-
   } catch (const std::runtime_error & e) {
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("constructor"), e.what());
   }
-
 }
 
 //-----------------------------------------------------------------------------
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_configure(
   const rclcpp_lifecycle::State &)
-try
 {
-  control_->configure();
-  RCLCPP_INFO(node_->get_logger(), "configured");
-  return CallbackReturn::SUCCESS;
-
-} catch (const std::runtime_error & e) {
-  RCLCPP_ERROR_STREAM(rclcpp::get_logger("config"), e.what());
-  return CallbackReturn::FAILURE;
+  try {
+    control_->configure();
+    RCLCPP_INFO(node_->get_logger(), "configured");
+    return CallbackReturn::SUCCESS;
+  } catch (const std::runtime_error & e) {
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("config"), e.what());
+    return CallbackReturn::FAILURE;
+  }
 }
 
 //-----------------------------------------------------------------------------

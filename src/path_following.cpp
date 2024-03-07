@@ -1,4 +1,23 @@
-//romea
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// std
+#include <memory>
+#include <vector>
+#include <utility>
+
+// romea
 #include "romea_common_utils/params/algorithm_parameters.hpp"
 #include "romea_mobile_base_utils/params/command_interface_parameters.hpp"
 
@@ -19,9 +38,9 @@ PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node)
   declare_setpoint(node_);
   declare_selected_lateral_control(node_);
   declare_selected_sliding_observer(node_);
-  std::cout << " PathFollowing constructor 5" << std::endl;
+  std::cout << " PB command limits" << std::endl;
   // declare_command_limits<CommandLimits>(node);
-  std::cout << " PathFollowing constructor 6" << std::endl;
+  std::cout << " Pb command limits" << std::endl;
   declare_command_interface_configuration(node_, "cmd_output");
   declare_log_directory(node_);
   declare_debug(node_);
@@ -35,11 +54,19 @@ void PathFollowing<CommandType>::configure()
   std::cout << "lateral_control: " << get_selected_lateral_control(node_) << std::endl;
   std::cout << "sliding observer: " << get_selected_sliding_observer(node_) << std::endl;
 
-  path_following_ = PathFollowingFactory<CommandType>::make(
-    node_, get_selected_lateral_control(node_), get_selected_sliding_observer(node_));
+  if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>) {
+    declare_one_steering_equivalence(node_);
+    path_following_ = PathFollowingFactory<CommandType>::make(
+      node_, get_selected_lateral_control(node_),
+      get_selected_sliding_observer(node_),
+      get_one_steering_equivalence(node_));
+  } else {
+    path_following_ = PathFollowingFactory<CommandType>::make(
+      node_, get_selected_lateral_control(node_), get_selected_sliding_observer(node_)
+    );
+  }
 
   if (get_debug(node_)) {
-    std::cout << get_log_filename(node_) << std::endl;
     logger_ = std::make_shared<core::SimpleFileLogger>(get_log_filename(node_));
     path_following_->registerLogger(logger_);
   }
@@ -56,7 +83,6 @@ void PathFollowing<CommandType>::configure()
   auto odom_cb = std::bind(&PathFollowing::process_odometry_, this, _1);
   odometry_sub_ = node_->create_subscription<OdometryMeasureMsg>(
     "odometry", reliable(1), std::move(odom_cb));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -86,19 +112,15 @@ void PathFollowing<CommandType>::process_matching_info_(
   romea_path_msgs::msg::PathMatchingInfo2D::ConstSharedPtr msg)
 {
   core::Twist2D filtered_twist = to_romea(msg->twist);
-  // std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
-  core::PathMatchedPoint2D matched_point = to_romea(msg->matched_points)[0];
+  std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
 
   if (cmd_interface_->is_started()) {
+    auto command = path_following_->computeCommand(
+      setpoint_.load(), command_limits_.load(), matchedPoints,
+      odometry_measure_.load(), filtered_twist);
 
-    if (matched_point.frenetPose.curvilinearAbscissa > 0 &&
-      matched_point.frenetPose.curvilinearAbscissa < msg->path_length)
-    {
-      auto command = path_following_->computeCommand(
-        setpoint_.load(), command_limits_.load(), matched_point,
-        odometry_measure_.load(), filtered_twist);
-
-      cmd_interface_->send_command(command);
+    if (command) {
+      cmd_interface_->send_command(*command);
 
       if (logger_) {
         logger_->writeRow();
@@ -111,6 +133,7 @@ void PathFollowing<CommandType>::process_matching_info_(
 
 template class PathFollowing<core::TwoAxleSteeringCommand>;
 template class PathFollowing<core::OneAxleSteeringCommand>;
+template class PathFollowing<core::SkidSteeringCommand>;
 
 }  // namespace ros2
 }  // namespace romea

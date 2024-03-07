@@ -1,7 +1,21 @@
-#ifndef romea_PathMatchingTraits_hpp
-#define romea_PathMatchingTraits_hpp
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-//romea
+#ifndef ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_TRAITS_HPP_
+#define ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_TRAITS_HPP_
+
+// romea
 #include "romea_core_path_following/PathFollowing.hpp"
 #include "romea_core_path_following/lateral_control/LateralControlBackStepping.hpp"
 #include "romea_core_path_following/lateral_control/LateralControlClassic.hpp"
@@ -20,7 +34,6 @@ namespace ros2
 template<typename CommandType>
 struct PathFollowingTraits
 {
-
 };
 
 template<>
@@ -45,9 +58,11 @@ struct PathFollowingTraits<core::OneAxleSteeringCommand>
   struct SlidingObserver
   {
     using ExtendedCinematic =
-      core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<core::OneAxleSteeringCommand>;
+      core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<
+      core::OneAxleSteeringCommand>;
     using ExtendedLyapunov =
-      core::PathFollowingSlidingObserverExtendedCinematicLyapunov<core::OneAxleSteeringCommand>;
+      core::PathFollowingSlidingObserverExtendedCinematicLyapunov<
+      core::OneAxleSteeringCommand>;
   };
 };
 
@@ -73,9 +88,11 @@ struct PathFollowingTraits<core::TwoAxleSteeringCommand>
   struct SlidingObserver
   {
     using ExtendedCinematic =
-      core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<core::TwoAxleSteeringCommand>;
+      core::PathFollowingSlidingObserverExtendedCinematicLinearTangent<
+      core::TwoAxleSteeringCommand>;
     using ExtendedLyapunov =
-      core::PathFollowingSlidingObserverExtendedCinematicLyapunov<core::TwoAxleSteeringCommand>;
+      core::PathFollowingSlidingObserverExtendedCinematicLyapunov<
+      core::TwoAxleSteeringCommand>;
   };
 };
 
@@ -104,4 +121,4 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
 }  // namespace ros2
 }  // namespace romea
 
-#endif
+#endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_TRAITS_HPP_
