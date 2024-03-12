@@ -38,9 +38,7 @@ PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node)
   declare_setpoint(node_);
   declare_selected_lateral_control(node_);
   declare_selected_sliding_observer(node_);
-  std::cout << " PB command limits" << std::endl;
-  // declare_command_limits<CommandLimits>(node);
-  std::cout << " Pb command limits" << std::endl;
+  declare_command_limits<CommandLimits>(node_);
   declare_command_interface_configuration(node_, "cmd_output");
   declare_log_directory(node_);
   declare_debug(node_);
@@ -53,7 +51,6 @@ void PathFollowing<CommandType>::configure()
   setpoint_.store(get_setpoint(node_));
   std::cout << "lateral_control: " << get_selected_lateral_control(node_) << std::endl;
   std::cout << "sliding observer: " << get_selected_sliding_observer(node_) << std::endl;
-
   if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>) {
     declare_one_steering_equivalence(node_);
     path_following_ = PathFollowingFactory<CommandType>::make(
