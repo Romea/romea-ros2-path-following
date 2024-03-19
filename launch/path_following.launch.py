@@ -99,7 +99,8 @@ def launch_setup(context, *args, **kwargs):
     mobile_base_name = mobile_base_meta_description.get_name()
 
     mobile_base_description = get_mobile_base_description(
-        mobile_base_meta_description.get_type(), mobile_base_meta_description.get_model()
+        mobile_base_meta_description.get_type(),
+        str(mobile_base_meta_description.get_model() or "")
     )
 
     configuration = dict(get_configuration(context)),
