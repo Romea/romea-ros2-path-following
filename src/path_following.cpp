@@ -120,6 +120,7 @@ void PathFollowing<CommandType>::process_matching_info_(
       cmd_interface_->send_command(*command);
 
       if (logger_) {
+        logger_->addEntry("t", rclcpp::Time(msg->header.stamp).seconds());
         logger_->writeRow();
       }
     } else {

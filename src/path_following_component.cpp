@@ -106,6 +106,7 @@ PathFollowingComponent::CallbackReturn PathFollowingComponent::on_configure(
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_activate(
   const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(node_->get_logger(), "activated");
   control_->activate();
   return CallbackReturn::SUCCESS;
 }
@@ -114,6 +115,7 @@ PathFollowingComponent::CallbackReturn PathFollowingComponent::on_activate(
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_deactivate(
   const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(node_->get_logger(), "deactivated");
   control_->deactivate();
   return CallbackReturn::SUCCESS;
 }

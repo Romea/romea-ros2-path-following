@@ -9,6 +9,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+string(TOUPPER $ENV{ROS_DISTRO} ROS_DISTRO)
+set(ROS_DISTRO "ROS_${ROS_DISTRO}")
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -51,10 +54,46 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::ros2::PathFollowingComponent"
-  EXECUTABLE path_following_node
-)
+if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
+
+  rclcpp_components_register_nodes(${PROJECT_NAME} "romea::ros2::PathFollowingComponent")
+
+  add_executable(path_following_node
+    src/path_following.cpp
+    src/path_following_component.cpp
+    src/path_following_node.cpp)
+
+  target_include_directories(path_following_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+
+  ament_target_dependencies(path_following_node
+    class_loader
+    rclcpp
+    rclcpp_components
+    rclcpp_lifecycle
+    sensor_msgs
+    romea_mobile_base_utils
+    romea_mobile_base_msgs
+    romea_joystick_utils
+    romea_path_utils
+    romea_path_msgs
+    romea_core_control
+    romea_core_path_following)
+
+  install(TARGETS
+    path_following_node
+    DESTINATION lib/${PROJECT_NAME})
+
+else()
+
+  # rclcpp_components_register_node(${PROJECT_NAME}
+  #   PLUGIN "romea::ros2::PathFollowingComponent"
+  #   EXECUTABLE path_following_node
+  #   EXECUTOR "MultiThreadedExecutor"
+  # )
+
+endif()
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 
