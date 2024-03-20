@@ -73,7 +73,9 @@ struct PathFollowingLateralControlParameters<
   static void declare(std::shared_ptr<Node> node, const std::string & params_ns)
   {
     declare_parameter<double>(node, params_ns, "gains.front_kd");
-    declare_parameter<double>(node, params_ns, "gains.rear_kd");
+    declare_parameter_with_default<double>(
+      node, params_ns, "gains.rear_kd",
+      std::numeric_limits<double>::quiet_NaN());
   }
 
   template<typename Node>
@@ -131,7 +133,10 @@ struct PathFollowingLateralControlParameters<
   static void declare(std::shared_ptr<Node> node, const std::string & params_ns)
   {
     declare_parameter<double>(node, params_ns, "gains.front_kd");
-    declare_parameter<double>(node, params_ns, "gains.rear_kd");
+    declare_parameter_with_default<double>(
+      node, params_ns, "gains.rear_kd",
+      std::numeric_limits<double>::quiet_NaN());
+
     declare_parameter<int>(node, params_ns, "prediction.horizon");
     declare_parameter<double>(node, params_ns, "prediction.a0");
     declare_parameter<double>(node, params_ns, "prediction.a1");
