@@ -87,11 +87,11 @@ if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
 
 else()
 
-  # rclcpp_components_register_node(${PROJECT_NAME}
-  #   PLUGIN "romea::ros2::PathFollowingComponent"
-  #   EXECUTABLE path_following_node
-  #   EXECUTOR "MultiThreadedExecutor"
-  # )
+  rclcpp_components_register_node(${PROJECT_NAME}
+    PLUGIN "romea::ros2::PathFollowingComponent"
+    EXECUTABLE path_following_node
+    EXECUTOR "MultiThreadedExecutor"
+  )
 
 endif()
 
