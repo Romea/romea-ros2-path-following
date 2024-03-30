@@ -88,11 +88,9 @@ def launch_setup(context, *args, **kwargs):
 
     joystick_name = joystick_meta_description.get_name()
 
-    print(joystick_meta_description.get_type())
-    print(joystick_meta_description.get_driver_pkg())
     joystick_mapping = joystick_buttons_remapping(
         joystick_meta_description.get_type(),
-        joystick_meta_description.get_driver_pkg(),
+        joystick_meta_description.get_driver_package(),
         get_joystick_remapping(joystick_meta_description.get_type()),
     )
 
