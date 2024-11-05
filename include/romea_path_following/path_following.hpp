@@ -76,7 +76,6 @@ protected:
   void process_odometry_(const OdometryMeasureMsg & msg);
 
 protected:
-  Node::SharedPtr node_;
 
   std::unique_ptr<VehiculeInterface> cmd_interface_;
   rclcpp::SubscriptionBase::SharedPtr matching_sub_;
@@ -88,6 +87,7 @@ protected:
   std::unique_ptr<core::PathFollowingBase<CommandType>> path_following_;
 
   std::shared_ptr<core::SimpleFileLogger> logger_;
+  Node::SharedPtr node_;
 };
 
 }  // namespace ros2
