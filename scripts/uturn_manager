@@ -1,0 +1,35 @@
+import rclpy
+from rclpy.node import Node
+from std_srvs.srv import SetBool
+
+
+class UturnManager(Node):
+  def __init__(self):
+    super().__init__('uturn_manager')
+    self.lock_state = False
+    self.lock_service = self.create_service(SetBool, "~/lock", self.lock_callback)
+    self.logger = self.get_logger()
+
+  def lock_callback(self, req: SetBool.Request, res: SetBool.Response):
+    if not req.data:
+      self.lock_state = False
+      self.logger.info("unlocked")
+      res.success = True
+      res.message = 'unlocked'
+    else:
+      if self.lock_state:
+        res.success = False
+        res.message = 'already locked'
+      else:
+        self.lock_state = True
+        self.logger.info("locked")
+        res.success = True
+        res.message = 'locked'
+
+    return res
+
+if __name__ == '__main__':
+  rclpy.init()
+  uturn_manager = UturnManager()
+  rclpy.spin(uturn_manager)
+  rclpy.shutdown()
