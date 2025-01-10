@@ -13,9 +13,12 @@ string(TOUPPER $ENV{ROS_DISTRO} ROS_DISTRO)
 set(ROS_DISTRO "ROS_${ROS_DISTRO}")
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 find_package(romea_mobile_base_utils REQUIRED)
@@ -101,6 +104,13 @@ install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 install(
   DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}
+)
+
+ament_python_install_package(${PROJECT_NAME})
+
+install(PROGRAMS
+  scripts/uturn_manager
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
