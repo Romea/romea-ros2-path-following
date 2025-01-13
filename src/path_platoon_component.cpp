@@ -42,7 +42,6 @@ PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
     rcl_interfaces::msg::ParameterDescriptor autostart_descr;
     autostart_descr.description = "Automatically start the robot when the node is configured";
     node_->declare_parameter("autostart", false, std::move(autostart_descr));
-
   } catch (const std::runtime_error & e) {
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("constructor"), e.what());
   }

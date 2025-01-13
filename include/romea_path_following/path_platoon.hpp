@@ -93,4 +93,4 @@ protected:
 }  // namespace ros2
 }  // namespace romea
 
-#endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_HPP_
+#endif  // ROMEA_PATH_FOLLOWING__PATH_PLATOON_HPP_

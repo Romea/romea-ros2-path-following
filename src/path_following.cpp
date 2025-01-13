@@ -112,7 +112,6 @@ template<typename CommandType>
 typename PathFollowing<CommandType>::OnSetParametersResult
 PathFollowing<CommandType>::update_setpoint_(const std::vector<rclcpp::Parameter> & parameters)
 {
-
   setpoint_.store(
       {
         get_parameter_value<double>(parameters, "setpoint.desired_linear_speed"),

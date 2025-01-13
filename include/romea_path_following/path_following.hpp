@@ -20,6 +20,7 @@
 #include <functional>
 #include <memory>
 #include <queue>
+#include <vector>
 
 // ros
 #include "rclcpp/rclcpp.hpp"

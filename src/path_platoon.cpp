@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// std
+#include <memory>
+#include <utility>
+
 // romea
 #include "romea_common_utils/qos.hpp"
 #include "romea_common_utils/params/algorithm_parameters.hpp"
@@ -40,7 +44,6 @@ PathPlatoon::PathPlatoon(Node::SharedPtr node)
 //-----------------------------------------------------------------------------
 void PathPlatoon::configure()
 {
-
   platoon_ = std::make_unique<core::PathFollowingPlatoon>(
     get_sampling_period(node_),
     get_desired_interdistance(node_),
@@ -91,7 +94,6 @@ void PathPlatoon::deactivate()
 void PathPlatoon::process_previous_vehicle_matching_info_(
   PathMatchingInfoMsg::ConstSharedPtr msg)
 {
-
   platoon_->setPreviousVehicleInfo(
     {to_romea_duration(msg->header.stamp),
       to_romea(msg->matched_points),

@@ -18,6 +18,7 @@
 // std
 #include <string>
 #include <memory>
+#include <limits>
 
 // ros2
 #include "rclcpp/rclcpp.hpp"

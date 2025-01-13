@@ -52,4 +52,4 @@ private:
 }  // namespace ros2
 }  // namespace romea
 
-#endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_COMPONENT_HPP_
+#endif  // ROMEA_PATH_FOLLOWING__PATH_PLATOON_COMPONENT_HPP_
