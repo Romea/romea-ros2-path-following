@@ -58,11 +58,13 @@ public:
   using CommandLimits = typename CommandTraits<CommandType>::CommandLimits;
   using OdometryMeasure = typename CommandTraits<CommandType>::Measure;
   using OdometryMeasureMsg = typename CommandTraits<CommandType>::MeasureMsg;
+  using OnSetParametersResult = rcl_interfaces::msg::SetParametersResult;
+  using OnSetParametersCallbackHandle = rclcpp::node_interfaces::OnSetParametersCallbackHandle;
 
 public:
   explicit PathFollowing(Node::SharedPtr node);
 
-  virtual ~PathFollowing() = default;
+  virtual ~PathFollowing();
 
   void configure() override;
 
@@ -71,21 +73,24 @@ public:
   void deactivate() override;
 
 protected:
+  OnSetParametersResult update_setpoint_(const std::vector<rclcpp::Parameter> & parameters);
+
   void process_matching_info_(romea_path_msgs::msg::PathMatchingInfo2D::ConstSharedPtr msg);
 
   void process_odometry_(const OdometryMeasureMsg & msg);
 
 protected:
-
   std::unique_ptr<VehiculeInterface> cmd_interface_;
   rclcpp::SubscriptionBase::SharedPtr matching_sub_;
   rclcpp::SubscriptionBase::SharedPtr odometry_sub_;
+  rclcpp::SubscriptionBase::SharedPtr parameters_sub_;
 
   core::SharedVariable<SetPoint> setpoint_;
   core::SharedVariable<CommandLimits> command_limits_;
   core::SharedVariable<OdometryMeasure> odometry_measure_;
   std::unique_ptr<core::PathFollowingBase<CommandType>> path_following_;
 
+  std::shared_ptr<OnSetParametersCallbackHandle> on_set_sepoint_parameters_callback_handle_;
   std::shared_ptr<core::SimpleFileLogger> logger_;
   Node::SharedPtr node_;
 };

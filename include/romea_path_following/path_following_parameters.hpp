@@ -99,7 +99,6 @@ core::MobileBaseInertia get_inertia(std::shared_ptr<Node> node)
 template<typename CommandLimits, typename Node>
 void declare_command_limits(std::shared_ptr<Node> node)
 {
-  std::cout << "declare_command_limits 2" << std::endl;
   declare_command_limits<CommandLimits>(node, "base.command_limits");
 }
 

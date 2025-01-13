@@ -46,6 +46,13 @@ PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node)
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
+PathFollowing<CommandType>::~PathFollowing()
+{
+  cmd_interface_->unsubscribe_to_cmd_mux();
+  RCLCPP_INFO_STREAM(node_->get_logger(), "end of node");
+}
+//-----------------------------------------------------------------------------
+template<class CommandType>
 void PathFollowing<CommandType>::configure()
 {
   setpoint_.store(get_setpoint(node_));
@@ -80,6 +87,9 @@ void PathFollowing<CommandType>::configure()
   auto odom_cb = std::bind(&PathFollowing::process_odometry_, this, _1);
   odometry_sub_ = node_->create_subscription<OdometryMeasureMsg>(
     "odometry", reliable(1), std::move(odom_cb));
+
+  on_set_sepoint_parameters_callback_handle_ = node_->add_on_set_parameters_callback(
+    std::bind(&PathFollowing<CommandType>::update_setpoint_, this, std::placeholders::_1));
 }
 
 //-----------------------------------------------------------------------------
@@ -90,10 +100,32 @@ void PathFollowing<CommandType>::activate()
   cmd_interface_->start();
 }
 
+//-----------------------------------------------------------------------------
 template<class CommandType>
 void PathFollowing<CommandType>::deactivate()
 {
   cmd_interface_->stop(true);
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+typename PathFollowing<CommandType>::OnSetParametersResult
+PathFollowing<CommandType>::update_setpoint_(const std::vector<rclcpp::Parameter> & parameters)
+{
+
+  setpoint_.store(
+      {
+        get_parameter_value<double>(parameters, "setpoint.desired_linear_speed"),
+        get_parameter_value_or<double>(parameters, "setpoint.desired_linear_speed", 0.0),
+        get_parameter_value_or<double>(parameters, "setpoint.desired_linear_speed", 0.0)
+      }
+  );
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  return result;
 }
 
 //-----------------------------------------------------------------------------
