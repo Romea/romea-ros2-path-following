@@ -18,9 +18,9 @@
 #include <utility>
 
 // romea
-#include "romea_path_following/path_following_component.hpp"
 #include "romea_common_utils/params/node_parameters.hpp"
 #include "romea_core_mobile_base/info/MobileBaseType.hpp"
+#include "romea_path_following/path_following_component.hpp"
 
 namespace romea
 {
@@ -38,15 +38,19 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
 
     rcl_interfaces::msg::ParameterDescriptor base_type_descr;
     base_type_descr.description = "Type of the robot [4WS4WD, 2FWS2RWD]";
-    node_->declare_parameter("base.type", rclcpp::PARAMETER_STRING, std::move(base_type_descr));
+    node_->declare_parameter("base.type", rclcpp::PARAMETER_STRING, base_type_descr);
 
     rcl_interfaces::msg::ParameterDescriptor autoconf_descr;
     autoconf_descr.description = "Automatic configuration when the node is created";
-    node_->declare_parameter("autoconfigure", false, std::move(autoconf_descr));
+    node_->declare_parameter("autoconfigure", false, autoconf_descr);
 
     rcl_interfaces::msg::ParameterDescriptor autostart_descr;
     autostart_descr.description = "Automatically start the robot when the node is configured";
-    node_->declare_parameter("autostart", false, std::move(autostart_descr));
+    node_->declare_parameter("autostart", false, autostart_descr);
+
+    rcl_interfaces::msg::ParameterDescriptor joystick_descr;
+    joystick_descr.description = "If enabled, listen joy topic for start/stop actions";
+    node_->declare_parameter("enable_joystick", true, joystick_descr);
 
     declare_joystick_mapping(node_);
 
@@ -62,22 +66,21 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
       throw std::runtime_error("Mobile base type " + mobile_base_type + " is not supported");
     }
 
-    if (get_parameter<bool>(node_, "autoconfigure")) {
+    if (get_parameter<bool>(node_, "enable_joystick")) {
       joystick_ = std::make_unique<Joystick>(node_, get_joystick_mapping(node_));
 
-      joystick_->registerButtonCallback(
-        "start", JoystickButton::PRESSED, [this]()
-        {
-          std::cout << " press start " << std::endl;
-          node_->activate();
-        });
+      joystick_->registerButtonCallback("start", JoystickButton::PRESSED, [this]() {
+        RCLCPP_INFO(node_->get_logger(), "button pressed: start");
+        node_->activate();
+      });
 
-      joystick_->registerButtonCallback(
-        "stop", JoystickButton::PRESSED, [this]() {
-          std::cout << " press stop " << std::endl;
-          node_->deactivate();
-        });
+      joystick_->registerButtonCallback("stop", JoystickButton::PRESSED, [this]() {
+        RCLCPP_INFO(node_->get_logger(), "button pressed: stop");
+        node_->deactivate();
+      });
+    }
 
+    if (get_parameter<bool>(node_, "autoconfigure")) {
       auto state = node_->configure();
       if (get_parameter<bool>(node_, "autostart") && state.label() == "inactive") {
         node_->activate();
@@ -90,7 +93,7 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
 
 //-----------------------------------------------------------------------------
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_configure(
-  const rclcpp_lifecycle::State &)
+  const rclcpp_lifecycle::State & /*unused*/)
 {
   try {
     control_->configure();
@@ -104,7 +107,7 @@ PathFollowingComponent::CallbackReturn PathFollowingComponent::on_configure(
 
 //-----------------------------------------------------------------------------
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_activate(
-  const rclcpp_lifecycle::State &)
+  const rclcpp_lifecycle::State & /*unused*/)
 {
   RCLCPP_INFO(node_->get_logger(), "activated");
   control_->activate();
@@ -113,7 +116,7 @@ PathFollowingComponent::CallbackReturn PathFollowingComponent::on_activate(
 
 //-----------------------------------------------------------------------------
 PathFollowingComponent::CallbackReturn PathFollowingComponent::on_deactivate(
-  const rclcpp_lifecycle::State &)
+  const rclcpp_lifecycle::State & /*unused*/)
 {
   RCLCPP_INFO(node_->get_logger(), "deactivated");
   control_->deactivate();
