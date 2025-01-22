@@ -27,7 +27,7 @@ namespace ros2
 {
 
 PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
-: node_(std::make_shared<rclcpp_lifecycle::LifecycleNode>("path_following", options))
+: node_(std::make_shared<rclcpp_lifecycle::LifecycleNode>("path_platoon", options))
 {
   try {
     using std::placeholders::_1;
@@ -42,6 +42,16 @@ PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
     rcl_interfaces::msg::ParameterDescriptor autostart_descr;
     autostart_descr.description = "Automatically start the robot when the node is configured";
     node_->declare_parameter("autostart", false, std::move(autostart_descr));
+
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon constructor !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+    platoon_ = std::make_unique<PathPlatoon>(node_);
+
+    auto state = node_->configure();
+    if (get_parameter<bool>(node_, "autostart") && state.label() == "inactive") {
+      node_->activate();
+    }
+
   } catch (const std::runtime_error & e) {
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("constructor"), e.what());
   }
@@ -51,6 +61,8 @@ PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
 PathPlatoonComponent::CallbackReturn PathPlatoonComponent::on_configure(
   const rclcpp_lifecycle::State &)
 {
+  RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon configure !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
   try {
     platoon_->configure();
     RCLCPP_INFO(node_->get_logger(), "configured");
