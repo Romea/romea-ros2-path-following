@@ -140,7 +140,6 @@ def launch_setup(context, *args, **kwargs):
             name="path_following",
             output="screen",
             parameters=[
-                get_configuration(context),
                 {
                     "joystick": joystick_mapping,
                     "base.type": get_type(mobile_base_description),
@@ -150,6 +149,7 @@ def launch_setup(context, *args, **kwargs):
                     "autoconfigure": True,
                     "autostart": True,
                 },
+                get_configuration(context),  # may redefine previous parameters
             ],
             remappings=[
                 ("cmd_mux/subscribe", mobile_base_name + "/cmd_mux/subscribe"),
