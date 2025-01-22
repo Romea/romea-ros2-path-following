@@ -69,10 +69,11 @@ def get_joystick_meta_description(context):
 
 
 def get_joystick_remapping(joystick_type):
-
     joystick_remapping_file_path = (
-        get_package_share_directory("romea_path_following") +
-        "/config/joystick/" + joystick_type + ".yaml"
+        get_package_share_directory("romea_path_following")
+        + "/config/joystick/"
+        + joystick_type
+        + ".yaml"
     )
 
     with open(joystick_remapping_file_path) as f:
@@ -80,7 +81,6 @@ def get_joystick_remapping(joystick_type):
 
 
 def launch_setup(context, *args, **kwargs):
-
     mode = get_mode(context)
     robot_namespace = get_robot_namespace(context)
     mobile_base_meta_description = get_mobile_base_meta_description(context)
@@ -97,15 +97,14 @@ def launch_setup(context, *args, **kwargs):
     mobile_base_name = mobile_base_meta_description.get_name()
 
     mobile_base_description = get_mobile_base_description(
-        mobile_base_meta_description.get_type(),
-        str(mobile_base_meta_description.get_model() or "")
+        mobile_base_meta_description.get_type(), str(mobile_base_meta_description.get_model() or "")
     )
 
-    configuration = dict(get_configuration(context)),
+    configuration = (dict(get_configuration(context)),)
     if "replay" in mode:
         configuration["cmd_output"]["priority"] = -1
 
-    # print("config1 type" ,type(configuration))  
+    # print("config1 type" ,type(configuration))
     # print("config2 type", type(get_configuration(context)))
 
     path_following = LaunchDescription()
@@ -121,12 +120,14 @@ def launch_setup(context, *args, **kwargs):
             name="path_matching",
             output="screen",
             parameters=[
-                {"wgs84_anchor": get_wgs84_anchor(context)},
-                {"path": get_trajectory_file_path(context)},
-                {"prediction_time_horizon": 1.0},
-                {"path_frame_id": "map"},
-                {"autoconfigure": True},
-                {"autostart": True},
+                {
+                    "wgs84_anchor": get_wgs84_anchor(context),
+                    "path": get_trajectory_file_path(context),
+                    "prediction_time_horizon": 1.0,
+                    "path_frame_id": "map",
+                    "autoconfigure": True,
+                    "autostart": True,
+                }
             ],
             remappings=[("odom", "localisation/filtered_odom")],
         )
@@ -140,13 +141,15 @@ def launch_setup(context, *args, **kwargs):
             output="screen",
             parameters=[
                 get_configuration(context),
-                {"joystick": joystick_mapping},
-                {"base.type": get_type(mobile_base_description)},
-                {"base.wheelbase": get_wheelbase_or(mobile_base_description, 1.2)},
-                {"base.inertia": get_inertia(mobile_base_description)},
-                {"base.command_limits": get_command_limits(mobile_base_description)},
-                {"autoconfigure": True},
-                {"autostart": True},
+                {
+                    "joystick": joystick_mapping,
+                    "base.type": get_type(mobile_base_description),
+                    "base.wheelbase": get_wheelbase_or(mobile_base_description, 1.2),
+                    "base.inertia": get_inertia(mobile_base_description),
+                    "base.command_limits": get_command_limits(mobile_base_description),
+                    "autoconfigure": True,
+                    "autostart": True,
+                },
             ],
             remappings=[
                 ("cmd_mux/subscribe", mobile_base_name + "/cmd_mux/subscribe"),
@@ -160,21 +163,14 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-
-    declared_arguments = []
-
-    declared_arguments.append(DeclareLaunchArgument("mode"))
-
-    declared_arguments.append(DeclareLaunchArgument("robot_namespace"))
-
-    declared_arguments.append(DeclareLaunchArgument("trajectory_file_path"))
-
-    declared_arguments.append(DeclareLaunchArgument("configuration_file_path"))
-
-    declared_arguments.append(DeclareLaunchArgument("joystick_meta_description_file_path"))
-
-    declared_arguments.append(DeclareLaunchArgument("mobile_base_meta_description_file_path"))
-
-    declared_arguments.append(DeclareLaunchArgument("wgs84_anchor_file_path"))
+    declared_arguments = [
+        DeclareLaunchArgument("mode"),
+        DeclareLaunchArgument("robot_namespace"),
+        DeclareLaunchArgument("trajectory_file_path"),
+        DeclareLaunchArgument("configuration_file_path"),
+        DeclareLaunchArgument("joystick_meta_description_file_path"),
+        DeclareLaunchArgument("mobile_base_meta_description_file_path"),
+        DeclareLaunchArgument("wgs84_anchor_file_path"),
+    ]
 
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
