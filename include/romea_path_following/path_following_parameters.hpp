@@ -190,6 +190,18 @@ std::map<std::string, int> get_joystick_mapping(std::shared_ptr<Node> node)
   };
 }
 
+template<typename Node>
+void declare_stop_at_the_end(std::shared_ptr<Node> node)
+{
+  declare_parameter_with_default<bool>(node, "stop_at_the_end", true);
+}
+
+template<typename Node>
+double get_stop_at_the_end(std::shared_ptr<Node> node)
+{
+  return get_parameter<bool>(node, "stop_at_the_end");
+}
+
 }  // namespace ros2
 }  // namespace romea
 

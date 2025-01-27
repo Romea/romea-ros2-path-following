@@ -36,6 +36,7 @@ PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node)
 : node_(std::move(node))
 {
   declare_setpoint(node_);
+  declare_stop_at_the_end(node_);
   declare_selected_lateral_control(node_);
   declare_selected_sliding_observer(node_);
   declare_command_limits<CommandLimits>(node_);
@@ -69,6 +70,8 @@ void PathFollowing<CommandType>::configure()
       node_, get_selected_lateral_control(node_), get_selected_sliding_observer(node_)
     );
   }
+
+  path_following_->setStopAtTheEnd(get_stop_at_the_end(node_));
 
   if (get_debug(node_)) {
     logger_ = std::make_shared<core::SimpleFileLogger>(get_log_filename(node_));
