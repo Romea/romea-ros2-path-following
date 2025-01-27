@@ -10,14 +10,25 @@ class UturnManager(Node):
         self.lock_state = False
         self.lock_service = self.create_service(
             SetBool, "~/lock", self.lock_callback)
+
+        self.uturn_done_service = self.create_service(
+            SetBool, "~/uturn_done", self.uturn_done_callback)
+
+        self.declare_parameter("nb_robots", 2)
+        self.nb_robots = self.get_parameter("nb_robots").get_parameter_value().integer_value
+        self.uturn_done_count = 0
+
         self.logger = self.get_logger()
 
     def lock_callback(self, req: SetBool.Request, res: SetBool.Response):
         if not req.data:
+            if self.lock_state:
+                self.uturn_done_count += 1
             self.lock_state = False
             self.logger.info("unlocked")
             res.success = True
             res.message = 'unlocked'
+
         else:
             if self.lock_state:
                 res.success = False
@@ -28,7 +39,21 @@ class UturnManager(Node):
                 res.success = True
                 res.message = 'locked'
 
+                if self.uturn_done_count >= self.nb_robots:
+                    self.uturn_done_count = 0
+                    self.logger.info("resetting uturn_done counter")
+
         return res
+
+    def uturn_done_callback(self, _: SetBool.Request, res: SetBool.Response):
+        res.success = self.uturn_done_count >= self.nb_robots
+        if res.success:
+            res.message = 'uturn done'
+        else:
+            res.message = f'{self.uturn_done_count}/{self.nb_robots} done'
+            self.logger.info(f'{self.uturn_done_count}/{self.nb_robots} done')
+        return res
+        
 
 
 def main(args=None):
