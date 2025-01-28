@@ -46,6 +46,18 @@ double get_desired_linear_speed(std::shared_ptr<Node> node)
 }
 
 template<typename Node>
+void declare_deactivated_linear_speed(std::shared_ptr<Node> node)
+{
+  declare_parameter<double>(node, "deactivated_linear_speed");
+}
+
+template<typename Node>
+double get_deactivated_linear_speed(std::shared_ptr<Node> node)
+{
+  return get_parameter<double>(node, "deactivated_linear_speed");
+}
+
+template<typename Node>
 void declare_maximal_linear_speed(std::shared_ptr<Node> node)
 {
   declare_parameter<double>(node, "maximal_linear_speed");

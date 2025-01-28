@@ -78,6 +78,8 @@ protected:
 
   void process_next_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg);
 
+  void send_param_request(double speed);
+
 protected:
   rclcpp::SubscriptionBase::SharedPtr previous_vehicle_matching_sub_;
   rclcpp::SubscriptionBase::SharedPtr current_vehicle_matching_sub_;
@@ -88,6 +90,7 @@ protected:
   std::shared_ptr<SetParametersClient> path_following_parameters_client_;
   std::shared_ptr<core::SimpleFileLogger> logger_;
   std::atomic_bool is_activated_;
+  double deactivated_linear_speed;
 };
 
 }  // namespace ros2

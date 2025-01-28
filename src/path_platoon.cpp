@@ -15,27 +15,22 @@
 // std
 #include <memory>
 #include <utility>
-#include <chrono>
 
 // romea
-#include "romea_common_utils/qos.hpp"
-#include "romea_common_utils/params/algorithm_parameters.hpp"
 #include "romea_common_utils/conversions/time_conversions.hpp"
 #include "romea_common_utils/conversions/twist2d_conversions.hpp"
+#include "romea_common_utils/params/algorithm_parameters.hpp"
+#include "romea_common_utils/qos.hpp"
 #include "romea_path_following/path_platoon.hpp"
 #include "romea_path_following/path_platoon_parameters.hpp"
 
 using namespace std::chrono_literals;
 
-namespace romea
-{
-namespace ros2
+namespace romea::ros2
 {
 
 //-----------------------------------------------------------------------------
-PathPlatoon::PathPlatoon(Node::SharedPtr node)
-: node_(std::move(node)),
-  is_activated_(false)
+PathPlatoon::PathPlatoon(Node::SharedPtr node) : node_(std::move(node)), is_activated_(false)
 {
   declare_sampling_period(node_);
   declare_desired_interdistance(node_);
@@ -44,6 +39,7 @@ PathPlatoon::PathPlatoon(Node::SharedPtr node)
   declare_minimal_linear_acceleration(node_);
   declare_log_directory(node_);
   declare_debug(node_);
+  declare_deactivated_linear_speed(node_);
 }
 
 //-----------------------------------------------------------------------------
@@ -56,6 +52,8 @@ void PathPlatoon::configure()
     get_minimal_linear_acceleration(node_),
     get_maximal_linear_acceleration(node_));
 
+  deactivated_linear_speed = get_deactivated_linear_speed(node_);
+
   if (get_debug(node_)) {
     logger_ = std::make_shared<core::SimpleFileLogger>(get_log_filename(node_));
     platoon_->registerLogger(logger_);
@@ -63,23 +61,23 @@ void PathPlatoon::configure()
 
   using namespace std::placeholders;
 
-  auto previous_vehicle_matching_cb = std::bind(
-    &PathPlatoon::process_previous_vehicle_matching_info_, this, _1);
+  auto previous_vehicle_matching_cb =
+    std::bind(&PathPlatoon::process_previous_vehicle_matching_info_, this, _1);
   previous_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "previous_vehicle/path_matching/info", reliable(1), std::move(previous_vehicle_matching_cb));
 
-  auto current_vehicle_matching_cb = std::bind(
-    &PathPlatoon::process_current_vehicle_matching_info_, this, _1);
+  auto current_vehicle_matching_cb =
+    std::bind(&PathPlatoon::process_current_vehicle_matching_info_, this, _1);
   current_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "path_matching/info", reliable(1), std::move(current_vehicle_matching_cb));
 
-  auto next_vehicle_matching_cb = std::bind(
-    &PathPlatoon::process_next_vehicle_matching_info_, this, _1);
+  auto next_vehicle_matching_cb =
+    std::bind(&PathPlatoon::process_next_vehicle_matching_info_, this, _1);
   next_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "next_vehicle/path_matching/info", reliable(1), std::move(next_vehicle_matching_cb));
 
-  path_following_parameters_client_ = node_->create_client<SetParametersSrv>(
-    "/follower/path_following/set_parameters");
+  path_following_parameters_client_ =
+    node_->create_client<SetParametersSrv>("/follower/path_following/set_parameters");
 }
 
 //-----------------------------------------------------------------------------
@@ -92,57 +90,46 @@ void PathPlatoon::activate()
 void PathPlatoon::deactivate()
 {
   is_activated_ = false;
+  send_param_request(deactivated_linear_speed);
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_previous_vehicle_matching_info_(
-  PathMatchingInfoMsg::ConstSharedPtr msg)
+void PathPlatoon::process_previous_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
 {
   platoon_->setPreviousVehicleInfo(
-    {to_romea_duration(msg->header.stamp),
-      to_romea(msg->matched_points),
-      to_romea(msg->twist)});
+    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_current_vehicle_matching_info_(
-  PathMatchingInfoMsg::ConstSharedPtr msg)
+void PathPlatoon::process_current_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
 {
   platoon_->setCurrentVehicleInfo(
-      {
-        to_romea_duration(msg->header.stamp),
-        to_romea(msg->matched_points),
-        to_romea(msg->twist)
-      }
-  );
+    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
 
   auto speed = platoon_->computeLinearSpeedCommand(to_romea_duration(msg->header.stamp));
 
   if (is_activated_) {
-    auto request = std::make_shared<SetParametersSrv::Request>();
-    auto parameter = rcl_interfaces::msg::Parameter();
-    parameter.name = "setpoint.desired_linear_speed";
-    parameter.value.type = 3;
-    parameter.value.double_value = speed.value_or(0.5);
-    request->parameters.push_back(parameter);
-    // std::cout << " send speed " << speed.value_or(0.5) << std::endl;
-    path_following_parameters_client_->async_send_request(request);
+    send_param_request(speed.value_or(0.5));
   }
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_next_vehicle_matching_info_(
-  PathMatchingInfoMsg::ConstSharedPtr msg)
+void PathPlatoon::process_next_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
 {
   platoon_->setNextVehicleInfo(
-      {
-        to_romea_duration(msg->header.stamp),
-        to_romea(msg->matched_points),
-        to_romea(msg->twist)
-      }
-  );
+    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
 }
 
+void PathPlatoon::send_param_request(double speed)
+{
+  auto request = std::make_shared<SetParametersSrv::Request>();
+  auto parameter = rcl_interfaces::msg::Parameter();
+  parameter.name = "setpoint.desired_linear_speed";
+  parameter.value.type = 3;
+  parameter.value.double_value = speed;
+  request->parameters.push_back(parameter);
+  // std::cout << " send speed " << speed.value_or(0.5) << std::endl;
+  path_following_parameters_client_->async_send_request(request);
+}
 
-}  // namespace ros2
-}  // namespace romea
+}  // namespace romea::ros2
