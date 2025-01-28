@@ -37,13 +37,13 @@ PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
 
     rcl_interfaces::msg::ParameterDescriptor autoconf_descr;
     autoconf_descr.description = "Automatic configuration when the node is created";
-    node_->declare_parameter("autoconfigure", false, std::move(autoconf_descr));
+    node_->declare_parameter("autoconfigure", false, autoconf_descr);
 
     rcl_interfaces::msg::ParameterDescriptor autostart_descr;
     autostart_descr.description = "Automatically start the robot when the node is configured";
-    node_->declare_parameter("autostart", false, std::move(autostart_descr));
+    node_->declare_parameter("autostart", false, autostart_descr);
 
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon constructor !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    // RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon constructor !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     platoon_ = std::make_unique<PathPlatoon>(node_);
 
@@ -61,7 +61,7 @@ PathPlatoonComponent::PathPlatoonComponent(const rclcpp::NodeOptions & options)
 PathPlatoonComponent::CallbackReturn PathPlatoonComponent::on_configure(
   const rclcpp_lifecycle::State &)
 {
-  RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon configure !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  // RCLCPP_ERROR_STREAM(node_->get_logger(), "platoon configure !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
   try {
     platoon_->configure();

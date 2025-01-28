@@ -15,7 +15,7 @@
 import yaml
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, GroupAction
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node, PushRosNamespace, SetParameter
@@ -107,13 +107,13 @@ def launch_setup(context, *args, **kwargs):
     # print("config1 type" ,type(configuration))
     # print("config2 type", type(get_configuration(context)))
 
-    path_following = LaunchDescription()
+    actions = []
 
-    path_following.add_action(PushRosNamespace(robot_namespace))
+    actions.append(PushRosNamespace(robot_namespace))
 
-    path_following.add_action(SetParameter(name="use_sim_time", value=(mode != "live")))
+    actions.append(SetParameter(name="use_sim_time", value=(mode != "live")))
 
-    path_following.add_action(
+    actions.append(
         Node(
             package="romea_path_matching",
             executable="path_matching_node",
@@ -133,7 +133,7 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
-    path_following.add_action(
+    actions.append(
         Node(
             package="romea_path_following",
             executable="path_following_node",
@@ -159,7 +159,7 @@ def launch_setup(context, *args, **kwargs):
             ],
         )
     )
-    return [path_following]
+    return [GroupAction(actions)]
 
 
 def generate_launch_description():

@@ -66,7 +66,7 @@ void PathPlatoon::configure()
   auto previous_vehicle_matching_cb = std::bind(
     &PathPlatoon::process_previous_vehicle_matching_info_, this, _1);
   previous_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
-    "previous_vehicule/path_matching/info", reliable(1), std::move(previous_vehicle_matching_cb));
+    "previous_vehicle/path_matching/info", reliable(1), std::move(previous_vehicle_matching_cb));
 
   auto current_vehicle_matching_cb = std::bind(
     &PathPlatoon::process_current_vehicle_matching_info_, this, _1);
@@ -76,7 +76,7 @@ void PathPlatoon::configure()
   auto next_vehicle_matching_cb = std::bind(
     &PathPlatoon::process_next_vehicle_matching_info_, this, _1);
   next_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
-    "next_vehicule/path_matching/info", reliable(1), std::move(next_vehicle_matching_cb));
+    "next_vehicle/path_matching/info", reliable(1), std::move(next_vehicle_matching_cb));
 
   path_following_parameters_client_ = node_->create_client<SetParametersSrv>(
     "/follower/path_following/set_parameters");
@@ -125,7 +125,7 @@ void PathPlatoon::process_current_vehicle_matching_info_(
     parameter.value.type = 3;
     parameter.value.double_value = speed.value_or(0.5);
     request->parameters.push_back(parameter);
-    std::cout << " send speed " << speed.value_or(0.5) << std::endl;
+    // std::cout << " send speed " << speed.value_or(0.5) << std::endl;
     path_following_parameters_client_->async_send_request(request);
   }
 }

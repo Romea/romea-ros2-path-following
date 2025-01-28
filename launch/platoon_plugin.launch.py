@@ -80,8 +80,8 @@ def launch_setup(context, *args, **kwargs):
                 {"debug": True},
             ],
             remappings=[
-                ("previous_vehicule/path_matching/info", "/" + previous_robot_namespace + "/path_matching/info"),
-                ("next_vehicule/path_matching/info", "/" + next_robot_namespace + "/path_matching/info"),
+                ("previous_vehicle/path_matching/info", "/" + previous_robot_namespace + "/path_matching/info"),
+                ("next_vehicle/path_matching/info", "/" + next_robot_namespace + "/path_matching/info"),
             ],
         )
     )
