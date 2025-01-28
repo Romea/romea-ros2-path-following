@@ -2,17 +2,18 @@
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import SetBool
+import signal
 
 
 class UturnManager(Node):
     def __init__(self):
-        super().__init__('uturn_manager')
+        super().__init__("uturn_manager")
         self.lock_state = False
-        self.lock_service = self.create_service(
-            SetBool, "~/lock", self.lock_callback)
+        self.lock_service = self.create_service(SetBool, "~/lock", self.lock_callback)
 
         self.uturn_done_service = self.create_service(
-            SetBool, "~/uturn_done", self.uturn_done_callback)
+            SetBool, "~/uturn_done", self.uturn_done_callback
+        )
 
         self.declare_parameter("nb_robots", 2)
         self.nb_robots = self.get_parameter("nb_robots").get_parameter_value().integer_value
@@ -27,45 +28,44 @@ class UturnManager(Node):
             self.lock_state = False
             self.logger.info("unlocked")
             res.success = True
-            res.message = 'unlocked'
+            res.message = "unlocked"
 
         else:
             if self.lock_state:
                 res.success = False
-                res.message = 'already locked'
+                res.message = "already locked"
             else:
                 self.lock_state = True
                 self.logger.info("locked")
                 res.success = True
-                res.message = 'locked'
+                res.message = "locked"
 
                 if self.uturn_done_count >= self.nb_robots:
                     self.uturn_done_count = 0
                     self.logger.info("resetting uturn_done counter")
-
         return res
 
     def uturn_done_callback(self, _: SetBool.Request, res: SetBool.Response):
         res.success = self.uturn_done_count >= self.nb_robots
         if res.success:
-            res.message = 'uturn done'
+            res.message = "uturn done"
         else:
-            res.message = f'{self.uturn_done_count}/{self.nb_robots} done'
-            self.logger.info(f'{self.uturn_done_count}/{self.nb_robots} done')
+            res.message = f"{self.uturn_done_count}/{self.nb_robots} done"
         return res
-        
 
 
 def main(args=None):
     rclpy.init(args=args)
     uturn_manager = UturnManager()
-    try:
-        rclpy.spin(uturn_manager)
-    except KeyboardInterrupt:
-        pass
 
-    rclpy.shutdown()
+    signal.signal(signal.SIGINT, lambda num, frame: rclpy.shutdown())
+
+    executor = rclpy.get_global_executor()
+    executor.add_node(uturn_manager)
+
+    while rclpy.ok():
+        executor.spin_once(0.2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
