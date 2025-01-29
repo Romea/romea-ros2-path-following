@@ -1,70 +1,106 @@
 #!/usr/bin/env python3
+import time
 import rclpy
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.node import Node
-from std_srvs.srv import SetBool
-import signal
 
+from rclpy.action import ActionServer, CancelResponse
+from romea_path_msgs.action import UturnDone, Lock
 
 class UturnManager(Node):
     def __init__(self):
         super().__init__("uturn_manager")
         self.lock_state = False
-        self.lock_service = self.create_service(SetBool, "~/lock", self.lock_callback)
 
-        self.uturn_done_service = self.create_service(
-            SetBool, "~/uturn_done", self.uturn_done_callback
+        lock_cb_group = MutuallyExclusiveCallbackGroup()
+        self.lock_action = ActionServer(
+            self,
+            Lock,
+            "~/lock",
+            self.lock_callback,
+            cancel_callback = self.cancel_callback,
+            callback_group = lock_cb_group
         )
 
-        self.declare_parameter("nb_robots", 2)
-        self.nb_robots = self.get_parameter("nb_robots").get_parameter_value().integer_value
+        uturn_done_cb_group = MutuallyExclusiveCallbackGroup()
+        self.uturn_done_action = ActionServer(
+            self,
+            UturnDone,
+            "~/uturn_done",
+            self.uturn_done_callback,
+            cancel_callback = self.cancel_callback,
+            callback_group = uturn_done_cb_group
+        )
+
+        self.declare_parameter("robots_nb", 2)
+        self.robots_nb = self.get_parameter("robots_nb").get_parameter_value().integer_value
         self.uturn_done_count = 0
 
         self.logger = self.get_logger()
 
-    def lock_callback(self, req: SetBool.Request, res: SetBool.Response):
-        if not req.data:
+    def cancel_callback(self, cancel_handle):
+        return CancelResponse.ACCEPTED
+
+    def lock_callback(self, goal_handle):
+        req_data = goal_handle.request.data
+        res = Lock.Result()
+        
+        if not req_data:
             if self.lock_state:
                 self.uturn_done_count += 1
             self.lock_state = False
             self.logger.info("unlocked")
             res.success = True
-            res.message = "unlocked"
+            res.message = 'unlocked'
+            goal_handle.succeed()
 
         else:
-            if self.lock_state:
-                res.success = False
-                res.message = "already locked"
-            else:
-                self.lock_state = True
-                self.logger.info("locked")
-                res.success = True
-                res.message = "locked"
+            while self.lock_state:
+                if goal_handle.is_cancel_requested:
+                    res.success = False
+                    res.message = 'canceled'
+                    goal_handle.canceled()
+                    return res
+                # else:
+                #     time.sleep(1)
 
-                if self.uturn_done_count >= self.nb_robots:
-                    self.uturn_done_count = 0
-                    self.logger.info("resetting uturn_done counter")
+            self.lock_state = True
+            self.logger.info("locked")
+            res.success = True
+            res.message = 'locked'
+            goal_handle.succeed()
+
+            if self.uturn_done_count >= self.robots_nb:
+                self.uturn_done_count = 0
+                self.logger.info("resetting uturn_done counter")
+
         return res
 
-    def uturn_done_callback(self, _: SetBool.Request, res: SetBool.Response):
-        res.success = self.uturn_done_count >= self.nb_robots
-        if res.success:
-            res.message = "uturn done"
-        else:
-            res.message = f"{self.uturn_done_count}/{self.nb_robots} done"
-        return res
+    def uturn_done_callback(self, goal_handle):
+        feedback_msg = UturnDone.Feedback()
+        while (self.uturn_done_count < self.robots_nb):
+            feedback_msg.robots_done = self.uturn_done_count
+            feedback_msg.robots_number = self.robots_nb
+            goal_handle.publish_feedback(feedback_msg)
+            time.sleep(1)
+
+        goal_handle.succeed()
+        return UturnDone.Result()
 
 
 def main(args=None):
     rclpy.init(args=args)
+    executor = MultiThreadedExecutor()
     uturn_manager = UturnManager()
-
-    signal.signal(signal.SIGINT, lambda num, frame: rclpy.shutdown())
-
-    executor = rclpy.get_global_executor()
     executor.add_node(uturn_manager)
-
-    while rclpy.ok():
-        executor.spin_once(0.2)
+    try:
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+    
+    uturn_manager.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
