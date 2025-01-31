@@ -5,7 +5,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.node import Node
 
-from rclpy.action import ActionServer, CancelResponse
+from rclpy.action import ActionServer
 from romea_path_msgs.action import UturnDone, Lock
 
 class UturnManager(Node):
@@ -19,7 +19,6 @@ class UturnManager(Node):
             Lock,
             "~/lock",
             self.lock_callback,
-            cancel_callback = self.cancel_callback,
             callback_group = lock_cb_group
         )
 
@@ -29,7 +28,6 @@ class UturnManager(Node):
             UturnDone,
             "~/uturn_done",
             self.uturn_done_callback,
-            cancel_callback = self.cancel_callback,
             callback_group = uturn_done_cb_group
         )
 
@@ -38,9 +36,6 @@ class UturnManager(Node):
         self.uturn_done_count = 0
 
         self.logger = self.get_logger()
-
-    def cancel_callback(self, cancel_handle):
-        return CancelResponse.ACCEPTED
 
     def lock_callback(self, goal_handle):
         req_data = goal_handle.request.data
