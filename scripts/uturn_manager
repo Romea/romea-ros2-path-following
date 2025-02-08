@@ -31,9 +31,7 @@ class UturnManager(Node):
             callback_group = uturn_done_cb_group
         )
 
-        self.declare_parameter("robots_nb", 2)
-        self.robots_nb = self.get_parameter("robots_nb").get_parameter_value().integer_value
-        self.uturn_done_count = 0
+        self.uturn_client_count = 0
 
         self.logger = self.get_logger()
 
@@ -42,23 +40,26 @@ class UturnManager(Node):
         res = Lock.Result()
         
         if not req_data:
-            if self.lock_state:
-                self.uturn_done_count += 1
             self.lock_state = False
             self.logger.info("unlocked")
             res.success = True
             res.message = 'unlocked'
             goal_handle.succeed()
 
+            self.uturn_client_count = max(self.uturn_client_count - 1, 0)
+            self.logger.info(f"client_count(3): {self.uturn_client_count}")
+
         else:
+            self.uturn_client_count += 1
+            self.logger.info(f"client_count(1): {self.uturn_client_count}")
+
             while self.lock_state:
                 if goal_handle.is_cancel_requested:
                     res.success = False
                     res.message = 'canceled'
                     goal_handle.canceled()
                     return res
-                # else:
-                #     time.sleep(1)
+                time.sleep(0.01)
 
             self.lock_state = True
             self.logger.info("locked")
@@ -66,19 +67,15 @@ class UturnManager(Node):
             res.message = 'locked'
             goal_handle.succeed()
 
-            if self.uturn_done_count >= self.robots_nb:
-                self.uturn_done_count = 0
-                self.logger.info("resetting uturn_done counter")
-
         return res
 
     def uturn_done_callback(self, goal_handle):
         feedback_msg = UturnDone.Feedback()
-        while (self.uturn_done_count < self.robots_nb):
-            feedback_msg.robots_done = self.uturn_done_count
-            feedback_msg.robots_number = self.robots_nb
+        while self.uturn_client_count > 0:
+            feedback_msg.robots_done = self.uturn_client_count
+            feedback_msg.robots_number = 0
             goal_handle.publish_feedback(feedback_msg)
-            time.sleep(1)
+            time.sleep(0.01)
 
         goal_handle.succeed()
         return UturnDone.Result()
