@@ -14,6 +14,7 @@
 
 // std
 #include <memory>
+#include <rclcpp/logging.hpp>
 #include <string>
 #include <utility>
 
@@ -56,6 +57,8 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
 
     auto mobile_base_type = get_parameter<std::string>(node_, "base.type");
     auto command_type = core::get_command_type(mobile_base_type);
+    RCLCPP_INFO_STREAM(node_->get_logger(), "command type: " << command_type);
+
     if (command_type == "two_axle_steering") {
       control_ = std::make_unique<PathFollowing<core::TwoAxleSteeringCommand>>(node_);
     } else if (command_type == "one_axle_steering") {
