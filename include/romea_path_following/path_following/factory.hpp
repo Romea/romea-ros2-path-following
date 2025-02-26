@@ -132,6 +132,7 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
   using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
   using LatCtrlClassic = PathFollowingTraits<Command>::LateralControl::Classic;
   using LatCtrlPredictive = PathFollowingTraits<Command>::LateralControl::Predictive;
+  using LatCtrlDecoupled = PathFollowingTraits<Command>::LateralControl::FrontRearDecoupled;
   using SlObsExtendedCinematic = PathFollowingTraits<Command>::SlidingObserver::ExtendedCinematic;
   using SlObsExtendedLyapunov = PathFollowingTraits<Command>::SlidingObserver::ExtendedLyapunov;
 
@@ -149,9 +150,13 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
       return make<LatCtrlPredictive>(node, lateral_control_name, sliding_observer_name);
     }
 
+    if (lateral_control_name == "front_rear_decoupled") {
+      return make<LatCtrlDecoupled>(node, lateral_control_name, sliding_observer_name);
+    }
+
     throw std::runtime_error(
-      std::string{"Unknown lateral_control '"} + sliding_observer_name +
-      "'. Available: [classic, predictive]");
+      std::string{"Unknown lateral_control '"} + lateral_control_name +
+      "'. Available: [classic, predictive, front_rear_decoupled]");
   }
 
   template<typename LatCtrl, typename Node>

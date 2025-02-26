@@ -23,6 +23,10 @@ test_path_following_factory:
         prediction.a1: 13.
         prediction.b1: 14.
         prediction.b2: 15.
+      front_rear_decoupled:
+        gains:
+          front_kp: 16.
+          rear_kp: 17.
       back_stepping:
         gains:
           kp: 30.0

@@ -20,17 +20,10 @@
 // gtest
 #include "gtest/gtest.h"
 
-// ros
-#include "rclcpp/rclcpp.hpp"
-
 // romea
 #include "../test/test_helper.h"
-<<<<<<< HEAD
 
 #include "romea_path_following/path_following/factory.hpp"
-=======
-#include "romea_path_following/path_following_factory.hpp"
->>>>>>> c7a900a (throw exception if factory failed)
 
 class TestPathFollowingFactory : public ::testing::Test
 {
@@ -121,10 +114,17 @@ TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveNone
       node, "predictive", "none") != nullptr);
 }
 
+TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandFrontRearDecoupledNone)
+{
+  EXPECT_TRUE(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+      node, "front_rear_decoupled", "none") != nullptr);
+}
+
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandUnknown)
 {
   EXPECT_THROW(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "unknown", "none"),
     std::runtime_error);
 }
@@ -155,6 +155,20 @@ TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveLyap
   EXPECT_TRUE(
     romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "predictive", "extended_lyapunov") != nullptr);
+}
+
+TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandFrontRearDecoupledCinematic)
+{
+  EXPECT_TRUE(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+      node, "front_rear_decoupled", "extended_cinematic") != nullptr);
+}
+
+TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandFrontRearDecoupledLyapunov)
+{
+  EXPECT_TRUE(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+      node, "front_rear_decoupled", "extended_lyapunov") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicNoneByEquivalence)

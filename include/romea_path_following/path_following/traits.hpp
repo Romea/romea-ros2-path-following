@@ -20,16 +20,12 @@
 #include "romea_path_following/lateral_control/back_stepping.hpp"
 #include "romea_path_following/lateral_control/classic.hpp"
 #include "romea_path_following/lateral_control/predictive.hpp"
+#include "romea_path_following/lateral_control/front_rear_decoupled.hpp"
 #include "romea_path_following/longitudinal_control/classic.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_linear_tangent.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
 
-
-namespace romea
-{
-namespace ros2
-{
-namespace path_following
+namespace romea::ros2::path_following
 {
 
 template<typename CommandType>
@@ -76,6 +72,7 @@ struct PathFollowingTraits<core::TwoAxleSteeringCommand>
   {
     using Classic = LateralControlClassic<Command>;
     using Predictive = LateralControlPredictive<Command>;
+    using FrontRearDecoupled = LateralControlFrontRearDecoupled<Command>;
   };
 
   struct SlidingObserver
@@ -106,8 +103,6 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
   };
 };
 
-}  // namespace path_following
-}  // namespace ros2
-}  // namespace romea
+}  // namespace romea::ros2::path_following
 
 #endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_TRAITS_HPP_
