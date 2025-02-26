@@ -13,8 +13,9 @@
 // limitations under the License.
 
 // std
-#include <string>
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 // gtest
 #include "gtest/gtest.h"
@@ -24,21 +25,19 @@
 
 // romea
 #include "../test/test_helper.h"
+<<<<<<< HEAD
 
 #include "romea_path_following/path_following/factory.hpp"
+=======
+#include "romea_path_following/path_following_factory.hpp"
+>>>>>>> c7a900a (throw exception if factory failed)
 
 class TestPathFollowingFactory : public ::testing::Test
 {
 protected:
-  static void SetUpTestCase()
-  {
-    rclcpp::init(0, nullptr);
-  }
+  static void SetUpTestCase() { rclcpp::init(0, nullptr); }
 
-  static void TearDownTestCase()
-  {
-    rclcpp::shutdown();
-  }
+  static void TearDownTestCase() { rclcpp::shutdown(); }
 
   void SetUp() override
   {
@@ -65,7 +64,6 @@ TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandBackSteppingNotNo
     romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
       node, "back_stepping", "not_none"));
 }
-
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandClassicNone)
 {
@@ -109,7 +107,6 @@ TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandPredictiveLyap
       node, "predictive", "extended_lyapunov") != nullptr);
 }
 
-
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandClassicNone)
 {
   EXPECT_TRUE(
@@ -122,6 +119,14 @@ TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveNone
   EXPECT_TRUE(
     romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "predictive", "none") != nullptr);
+}
+
+TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandUnknown)
+{
+  EXPECT_THROW(
+    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+      node, "unknown", "none"),
+    std::runtime_error);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandClassicCinematic)
@@ -165,7 +170,6 @@ TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicCinematicB
     romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
       node, "classic", "extended_cinematic", true) != nullptr);
 }
-
 
 //-----------------------------------------------------------------------------
 int main(int argc, char ** argv)

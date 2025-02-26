@@ -143,19 +143,22 @@ void PathFollowing<CommandType>::process_matching_info_(
   std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
 
   if (cmd_interface_->is_started()) {
+    if (logger_) {
+      logger_->addEntry("time", rclcpp::Time(msg->header.stamp).seconds());
+    }
+
     auto command = path_following_->compute_command(
       setpoint_.load(), command_limits_.load(), matchedPoints,
       odometry_measure_.load(), filtered_twist);
 
     if (command) {
       cmd_interface_->send_command(*command);
-
-      if (logger_) {
-        logger_->addEntry("t", rclcpp::Time(msg->header.stamp).seconds());
-        logger_->writeRow();
-      }
     } else {
       cmd_interface_->send_null_command();
+    }
+
+    if (logger_) {
+      logger_->writeRow();
     }
   }
 }

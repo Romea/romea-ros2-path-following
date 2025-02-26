@@ -23,25 +23,20 @@
 // romea
 #include "romea_path_following/path_following/traits.hpp"
 
-namespace romea
-{
-namespace ros2
-{
-namespace path_following
+namespace romea::ros2::path_following
 {
 
 inline std::string full_name(const std::string & ns, const std::string & name)
 {
   if (name.empty()) {
     return ns;
-  } else {
-    return ns + "." + name;
   }
+  return ns + "." + name;
 }
 
 template<typename LatCtrl, typename LonCtrl, typename SlObs, typename Node>
-inline std::unique_ptr<core::path_following::PathFollowingWithSlidingObserver<LatCtrl, LonCtrl,
-  SlObs>>
+inline std::unique_ptr<
+  core::path_following::PathFollowingWithSlidingObserver<LatCtrl, LonCtrl, SlObs>>
 make_path_following(
   std::shared_ptr<Node> node,
   const std::string & lateral_control_name,
@@ -99,9 +94,8 @@ struct PathFollowingFactory<core::OneAxleSteeringCommand>
     }
 
     throw std::runtime_error(
-            std::string{"Unknown lateral_control '"} + sliding_observer_name +
-            "'. Available: [classic, predictive]");
-
+      std::string{"Unknown lateral_control '"} + lateral_control_name +
+      "'. Available: [classic, predictive]");
   }
 
   template<typename LatCtrl, typename Node>
@@ -125,8 +119,8 @@ struct PathFollowingFactory<core::OneAxleSteeringCommand>
     }
 
     throw std::runtime_error(
-            std::string{"Unknown sliding_observer '"} + sliding_observer_name +
-            "'. Available: [extended_cinematic, extended_lyapunov, none]");
+      std::string{"Unknown sliding_observer '"} + sliding_observer_name +
+      "'. Available: [none, extended_cinematic, extended_lyapunov]");
   }
 };
 
@@ -150,12 +144,14 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
     if (lateral_control_name == "classic") {
       return make<LatCtrlClassic>(node, lateral_control_name, sliding_observer_name);
     }
+
     if (lateral_control_name == "predictive") {
       return make<LatCtrlPredictive>(node, lateral_control_name, sliding_observer_name);
     }
+
     throw std::runtime_error(
-            std::string{"Unknown lateral_control '"} + sliding_observer_name +
-            "'. Available: [classic, predictive]");
+      std::string{"Unknown lateral_control '"} + sliding_observer_name +
+      "'. Available: [classic, predictive]");
   }
 
   template<typename LatCtrl, typename Node>
@@ -167,17 +163,20 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
     if (sliding_observer_name == "none") {
       return make_path_following<LatCtrl, LonCtrl>(node, lateral_control_name, "");
     }
+
     if (sliding_observer_name == "extended_cinematic") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedCinematic>(
         node, lateral_control_name, "", sliding_observer_name);
     }
+
     if (sliding_observer_name == "extended_lyapunov") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedLyapunov>(
         node, lateral_control_name, "", sliding_observer_name);
     }
+
     throw std::runtime_error(
-            std::string{"Unknown sliding_observer '"} + sliding_observer_name +
-            "'. Available: [extended_cinematic, extended_lyapunov, none]");
+      std::string{"Unknown sliding_observer '"} + sliding_observer_name +
+      "'. Available: [none, extended_cinematic, extended_lyapunov]");
   }
 };
 
@@ -199,17 +198,15 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
     if (!one_axle_steering_equivalence) {
       if (lateral_control_name == "back_stepping") {
         if (sliding_observer_name == "none") {
-          return make_path_following<LatCtrlBackStepping, LonCtrl>(
-            node, lateral_control_name,
-            "");
+          return make_path_following<LatCtrlBackStepping, LonCtrl>(node, lateral_control_name, "");
         }
         throw std::runtime_error(
-                std::string{"Unknown sliding_observer '"} + sliding_observer_name +
-                "'. Available: [none]");
+          std::string{"Unknown sliding_observer '"} + sliding_observer_name +
+          "'. Available: [none]");
       }
       throw std::runtime_error(
-              std::string{"Unknown lateral_control '"} + sliding_observer_name +
-              "'. Available: [back_stepping]");
+        std::string{"Unknown lateral_control '"} + sliding_observer_name +
+        "'. Available: [back_stepping]");
     }
     return std::make_unique<core::path_following::OneAxleSteeringEquivalence>(
       PathFollowingFactory<core::OneAxleSteeringCommand>::make(
@@ -217,8 +214,6 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   }
 };
 
-}  // namespace path_following
-}  // namespace ros2
-}  // namespace romea
+}  // namespace romea::ros2::path_following
 
 #endif  // ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_FACTORY_HPP_
