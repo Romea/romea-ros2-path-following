@@ -27,7 +27,9 @@
 
 using namespace std::chrono_literals;
 
-namespace romea::ros2
+namespace romea
+{
+namespace ros2
 {
 namespace path_following
 {
@@ -140,7 +142,7 @@ void Platoon::process_next_vehicle_matching_info_(
   );
 }
 
-void PathPlatoon::send_param_request(double speed)
+void Platoon::send_param_request(double speed)
 {
   auto request = std::make_shared<SetParametersSrv::Request>();
   auto parameter = rcl_interfaces::msg::Parameter();
