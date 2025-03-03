@@ -101,13 +101,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 #endif()
 
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::ros2::PathFollowingComponent"
+  PLUGIN "romea::ros2::path_following::PathFollowingComponent"
   EXECUTABLE path_following_node
 )
 
 
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::ros2::PathPlatoonComponent"
+  PLUGIN "romea::ros2::path_following::PathPlatoonComponent"
   EXECUTABLE path_platoon_node
 )
 
