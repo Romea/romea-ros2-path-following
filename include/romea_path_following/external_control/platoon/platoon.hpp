@@ -27,26 +27,28 @@
 
 
 // romea
-#include "romea_core_path_following/PathFollowingPlatoon.hpp"
+#include "romea_core_path_following/external_control/platoon.hpp"
 #include "romea_path_utils/path_matching_info_conversions.hpp"
 
 namespace romea
 {
 namespace ros2
 {
+namespace path_following
+{
 
 
-class PathFollowingBase
+class PlatoonBase
 {
 public:
-  virtual ~PathFollowingBase() = default;
+  virtual ~PlatoonBase() = default;
   virtual void configure() = 0;
   virtual void activate() {}
   virtual void deactivate() {}
 };
 
 
-class PathPlatoon : public PathFollowingBase
+class Platoon : public PlatoonBase
 {
 public:
   using Node = rclcpp_lifecycle::LifecycleNode;
@@ -61,9 +63,9 @@ public:
   // using OdometryMeasureMsg = typename CommandTraits<CommandType>::MeasureMsg;
 
 public:
-  explicit PathPlatoon(Node::SharedPtr node);
+  explicit Platoon(Node::SharedPtr node);
 
-  virtual ~PathPlatoon() = default;
+  virtual ~Platoon() = default;
 
   void configure() override;
 
@@ -86,13 +88,14 @@ protected:
   rclcpp::SubscriptionBase::SharedPtr next_vehicle_matching_sub_;
 
   std::shared_ptr<Node> node_;
-  std::unique_ptr<core::PathFollowingPlatoon> platoon_;
+  std::unique_ptr<core::path_following::Platoon> platoon_;
   std::shared_ptr<SetParametersClient> path_following_parameters_client_;
   std::shared_ptr<core::SimpleFileLogger> logger_;
   std::atomic_bool is_activated_;
   double deactivated_linear_speed;
 };
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
 

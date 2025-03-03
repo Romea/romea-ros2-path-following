@@ -22,12 +22,14 @@
 #include "romea_mobile_base_utils/params/command_interface_parameters.hpp"
 
 // local
-#include "romea_path_following/path_following.hpp"
-#include "romea_path_following/path_following_factory.hpp"
+#include "romea_path_following/path_following/path_following.hpp"
+#include "romea_path_following/path_following/factory.hpp"
 
 namespace romea
 {
 namespace ros2
+{
+namespace path_following
 {
 
 //-----------------------------------------------------------------------------
@@ -71,11 +73,11 @@ void PathFollowing<CommandType>::configure()
     );
   }
 
-  path_following_->setStopAtTheEnd(get_stop_at_the_end(node_));
+  path_following_->set_stop_at_the_end(get_stop_at_the_end(node_));
 
   if (get_debug(node_)) {
     logger_ = std::make_shared<core::SimpleFileLogger>(get_log_filename(node_));
-    path_following_->registerLogger(logger_);
+    path_following_->register_logger(logger_);
   }
 
   command_limits_.store(get_command_limits<CommandLimits>(node_));
@@ -141,7 +143,7 @@ void PathFollowing<CommandType>::process_matching_info_(
   std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
 
   if (cmd_interface_->is_started()) {
-    auto command = path_following_->computeCommand(
+    auto command = path_following_->compute_command(
       setpoint_.load(), command_limits_.load(), matchedPoints,
       odometry_measure_.load(), filtered_twist);
 
@@ -162,5 +164,6 @@ template class PathFollowing<core::TwoAxleSteeringCommand>;
 template class PathFollowing<core::OneAxleSteeringCommand>;
 template class PathFollowing<core::SkidSteeringCommand>;
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea

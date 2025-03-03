@@ -22,20 +22,22 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 // romea
-#include "romea_path_following/path_platoon.hpp"
+#include "romea_path_following/external_control/platoon/platoon.hpp"
 
 namespace romea
 {
 namespace ros2
 {
+namespace path_following
+{
 
-class PathPlatoonComponent
+class PlatoonComponent
 {
 public:
   using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 public:
-  explicit PathPlatoonComponent(const rclcpp::NodeOptions & options);
+  explicit PlatoonComponent(const rclcpp::NodeOptions & options);
 
   auto get_node_base_interface() const {return node_->get_node_base_interface();}
 
@@ -45,11 +47,11 @@ public:
 
 private:
   rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
-  std::unique_ptr<PathPlatoon> platoon_;
+  std::unique_ptr<Platoon> platoon_;
   bool autostart_;
 };
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
-
 #endif  // ROMEA_PATH_FOLLOWING__PATH_PLATOON_COMPONENT_HPP_

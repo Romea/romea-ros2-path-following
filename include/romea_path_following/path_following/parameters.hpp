@@ -26,7 +26,7 @@
 // romea
 #include "romea_mobile_base_utils/params/mobile_base_inertia_parameters.hpp"
 #include "romea_mobile_base_utils/params/command_limits_parameters.hpp"
-#include "romea_core_path_following/PathFollowingSetPoint.hpp"
+#include "romea_core_path_following/setpoint.hpp"
 
 
 namespace romea
@@ -46,6 +46,18 @@ double get_sampling_period(std::shared_ptr<Node> node)
 {
   return get_parameter<double>(node, "sampling_period");
 }
+
+template<typename Node>
+double try_declare_and_get_sampling_period(std::shared_ptr<Node> node)
+{
+  try {
+    declare_sampling_period(node);
+  } catch (...) {
+  }
+
+  return get_sampling_period(node);
+}
+
 
 template<typename Node>
 void declare_one_steering_equivalence(std::shared_ptr<Node> node)
@@ -85,6 +97,18 @@ double get_wheelbase(std::shared_ptr<Node> node)
 }
 
 template<typename Node>
+double try_declare_and_get_wheelbase(std::shared_ptr<Node> node)
+{
+  try {
+    declare_wheelbase(node);
+  } catch (...) {
+  }
+
+  return get_wheelbase(node);
+}
+
+
+template<typename Node>
 void declare_inertia(std::shared_ptr<Node> node)
 {
   declare_inertia_info(node, "base.inertia");
@@ -95,6 +119,18 @@ core::MobileBaseInertia get_inertia(std::shared_ptr<Node> node)
 {
   return get_inertia_info(node, "base.inertia");
 }
+
+template<typename Node>
+core::MobileBaseInertia try_declare_and_get_inertia(std::shared_ptr<Node> node)
+{
+  try {
+    declare_inertia(node);
+  } catch (...) {
+  }
+
+  return get_inertia(node);
+}
+
 
 template<typename CommandLimits, typename Node>
 void declare_command_limits(std::shared_ptr<Node> node)
@@ -108,6 +144,7 @@ CommandLimits get_command_limits(std::shared_ptr<Node> node)
   return get_command_limits<CommandLimits>(node, "base.command_limits");
 }
 
+
 template<typename Node>
 void declare_setpoint(std::shared_ptr<Node> node)
 {
@@ -117,7 +154,7 @@ void declare_setpoint(std::shared_ptr<Node> node)
 }
 
 template<typename Node>
-core::PathFollowingSetPoint get_setpoint(std::shared_ptr<Node> node)
+core::path_following::SetPoint get_setpoint(std::shared_ptr<Node> node)
 {
   return{
     get_parameter<double>(node, "setpoint.desired_linear_speed"),

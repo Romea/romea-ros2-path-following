@@ -25,7 +25,7 @@
 // romea
 #include "../test/test_helper.h"
 
-#include "romea_path_following/path_following_factory.hpp"
+#include "romea_path_following/path_following/factory.hpp"
 
 class TestPathFollowingFactory : public ::testing::Test
 {
@@ -55,57 +55,57 @@ protected:
 TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandBackSteppingNone)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
       node, "back_stepping", "none") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandBackSteppingNotNone)
 {
-  EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
-      node, "back_stepping", "not_none") == nullptr);
+  EXPECT_ANY_THROW(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+      node, "back_stepping", "not_none"));
 }
 
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandClassicNone)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "classic", "none") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandPredictiveNone)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "predictive", "none") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandClassicCinematic)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "classic", "extended_cinematic") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandClassicLyapunov)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "classic", "extended_lyapunov") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandPredictiveCinematic)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "predictive", "extended_cinematic") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandPredictiveLyapunov)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::OneAxleSteeringCommand>::make(
       node, "predictive", "extended_lyapunov") != nullptr);
 }
 
@@ -113,56 +113,56 @@ TEST_F(TestPathFollowingFactory, TestFactoryOneAxleSteeringCommandPredictiveLyap
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandClassicNone)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "classic", "none") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveNone)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "predictive", "none") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandClassicCinematic)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "classic", "extended_cinematic") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandClassicLyapunov)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "classic", "extended_lyapunov") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveCinematic)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "predictive", "extended_cinematic") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactoryTwoAxleSteeringCommandPredictiveLyapunov)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::TwoAxleSteeringCommand>::make(
       node, "predictive", "extended_lyapunov") != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicNoneByEquivalence)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
       node, "classic", "none", true) != nullptr);
 }
 
 TEST_F(TestPathFollowingFactory, TestFactorySkidSteeringCommandClassicCinematicByEquivalence)
 {
   EXPECT_TRUE(
-    romea::ros2::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
+    romea::ros2::path_following::PathFollowingFactory<romea::core::SkidSteeringCommand>::make(
       node, "classic", "extended_cinematic", true) != nullptr);
 }
 

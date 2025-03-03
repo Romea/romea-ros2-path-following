@@ -32,11 +32,13 @@
 #include "romea_mobile_base_utils/control/command_interface.hpp"
 #include "romea_mobile_base_utils/control/command_traits.hpp"
 #include "romea_path_utils/path_matching_info_conversions.hpp"
-#include "romea_path_following/path_following_factory.hpp"
+#include "romea_path_following/path_following/factory.hpp"
 
 namespace romea
 {
 namespace ros2
+{
+namespace path_following
 {
 
 class PathFollowingBase
@@ -54,7 +56,7 @@ class PathFollowing : public PathFollowingBase
 {
 public:
   using Node = rclcpp_lifecycle::LifecycleNode;
-  using SetPoint = core::PathFollowingSetPoint;
+  using SetPoint = core::path_following::SetPoint;
   using VehiculeInterface = CommandInterface<CommandType>;
   using CommandLimits = typename CommandTraits<CommandType>::CommandLimits;
   using OdometryMeasure = typename CommandTraits<CommandType>::Measure;
@@ -89,13 +91,14 @@ protected:
   core::SharedVariable<SetPoint> setpoint_;
   core::SharedVariable<CommandLimits> command_limits_;
   core::SharedVariable<OdometryMeasure> odometry_measure_;
-  std::unique_ptr<core::PathFollowingBase<CommandType>> path_following_;
+  std::unique_ptr<core::path_following::PathFollowingBase<CommandType>> path_following_;
 
   std::shared_ptr<OnSetParametersCallbackHandle> on_set_sepoint_parameters_callback_handle_;
   std::shared_ptr<core::SimpleFileLogger> logger_;
   Node::SharedPtr node_;
 };
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
 

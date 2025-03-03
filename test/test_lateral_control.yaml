@@ -1,4 +1,4 @@
-test_lateral_control_parameters:
+test_lateral_control:
   ros__parameters:
     sampling_period: 0.1
     base:
@@ -9,25 +9,23 @@ test_lateral_control_parameters:
         z_moment: 6.
     lateral_control:
       classic:
-        gains:
-          front_kd: 10.
-          rear_kd: 11.
+        gains.front_kd: 10.
+        gains.rear_kd: 11.
       predictive:
-        gains:
-          front_kd: 20.
-          rear_kd: 21.
-        prediction.horizon: 22
-        prediction.a0: 23.
-        prediction.a1: 24.
-        prediction.b1: 25.
-        prediction.b2: 26.
+        gains.front_kd: 20.
+        gains.rear_kd: 21.
+        prediction:
+          horizon: 22
+          a0: 23.
+          a1: 24.
+          b1: 25.
+          b2: 26.
       back_stepping:
-        gains:
-          kp: 30.0
-          ki: 31.0
-          kd: 32.0
-          iclamp: 33.0
-          front_kp: 34.0
-          front_kd: 35.0
-          rear_kd: 36.0
+        gains.kp: 30.0
+        # ki: 31.0
+        gains.kd: 32.0
+        # iclamp: 33.0
+        gains.front_kp: 34.0
+        gains.front_kd: 35.0
+        gains.rear_kd: 36.0
         maximal_omega_d: 37.0

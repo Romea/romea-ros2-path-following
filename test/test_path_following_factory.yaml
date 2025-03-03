@@ -7,6 +7,8 @@ test_path_following_factory:
         mass: 2.
         center: [3., 4., 5.]
         z_moment: 6.
+    longitudinal_control:
+      minimal_linear_speed: 0.3
     lateral_control:
       classic:
         gains:

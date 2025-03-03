@@ -31,6 +31,8 @@ namespace romea
 {
 namespace ros2
 {
+namespace path_following
+{
 
 
 template<typename Node>
@@ -117,6 +119,7 @@ double get_sampling_period(std::shared_ptr<Node> node)
   return get_parameter<double>(node, "sampling_period");
 }
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
 

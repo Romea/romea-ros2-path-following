@@ -31,10 +31,10 @@ find_package(romea_core_path_following REQUIRED)
 # find_package(romea_following_utils REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  src/path_following_component.cpp
-  src/path_following.cpp
-  src/path_platoon_component.cpp
-  src/path_platoon.cpp
+  src/path_following/component.cpp
+  src/path_following/path_following.cpp
+  src/external_control/platoon/component.cpp
+  src/external_control/platoon/platoon.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}

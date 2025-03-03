@@ -15,22 +15,27 @@
 // std
 #include <memory>
 #include <utility>
+#include <chrono>
 
 // romea
+#include "romea_common_utils/qos.hpp"
+#include "romea_common_utils/params/algorithm_parameters.hpp"
 #include "romea_common_utils/conversions/time_conversions.hpp"
 #include "romea_common_utils/conversions/twist2d_conversions.hpp"
-#include "romea_common_utils/params/algorithm_parameters.hpp"
-#include "romea_common_utils/qos.hpp"
-#include "romea_path_following/path_platoon.hpp"
-#include "romea_path_following/path_platoon_parameters.hpp"
+#include "romea_path_following/external_control/platoon/platoon.hpp"
+#include "romea_path_following/external_control/platoon/parameters.hpp"
 
 using namespace std::chrono_literals;
 
 namespace romea::ros2
 {
+namespace path_following
+{
 
 //-----------------------------------------------------------------------------
-PathPlatoon::PathPlatoon(Node::SharedPtr node) : node_(std::move(node)), is_activated_(false)
+Platoon::Platoon(Node::SharedPtr node)
+: node_(std::move(node)),
+  is_activated_(false)
 {
   declare_sampling_period(node_);
   declare_desired_interdistance(node_);
@@ -43,9 +48,9 @@ PathPlatoon::PathPlatoon(Node::SharedPtr node) : node_(std::move(node)), is_acti
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::configure()
+void Platoon::configure()
 {
-  platoon_ = std::make_unique<core::PathFollowingPlatoon>(
+  platoon_ = std::make_unique<core::path_following::Platoon>(
     get_sampling_period(node_),
     get_desired_interdistance(node_),
     get_maximal_linear_speed(node_),
@@ -61,18 +66,18 @@ void PathPlatoon::configure()
 
   using namespace std::placeholders;
 
-  auto previous_vehicle_matching_cb =
-    std::bind(&PathPlatoon::process_previous_vehicle_matching_info_, this, _1);
+  auto previous_vehicle_matching_cb = std::bind(
+    &Platoon::process_previous_vehicle_matching_info_, this, _1);
   previous_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "previous_vehicle/path_matching/info", reliable(1), std::move(previous_vehicle_matching_cb));
 
-  auto current_vehicle_matching_cb =
-    std::bind(&PathPlatoon::process_current_vehicle_matching_info_, this, _1);
+  auto current_vehicle_matching_cb = std::bind(
+    &Platoon::process_current_vehicle_matching_info_, this, _1);
   current_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "path_matching/info", reliable(1), std::move(current_vehicle_matching_cb));
 
-  auto next_vehicle_matching_cb =
-    std::bind(&PathPlatoon::process_next_vehicle_matching_info_, this, _1);
+  auto next_vehicle_matching_cb = std::bind(
+    &Platoon::process_next_vehicle_matching_info_, this, _1);
   next_vehicle_matching_sub_ = node_->create_subscription<PathMatchingInfoMsg>(
     "next_vehicle/path_matching/info", reliable(1), std::move(next_vehicle_matching_cb));
 
@@ -81,32 +86,41 @@ void PathPlatoon::configure()
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::activate()
+void Platoon::activate()
 {
   is_activated_ = true;
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::deactivate()
+void Platoon::deactivate()
 {
   is_activated_ = false;
   send_param_request(deactivated_linear_speed);
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_previous_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
+void Platoon::process_previous_vehicle_matching_info_(
+  PathMatchingInfoMsg::ConstSharedPtr msg)
 {
-  platoon_->setPreviousVehicleInfo(
-    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
+  platoon_->set_previous_vehicle_info(
+    {to_romea_duration(msg->header.stamp),
+      to_romea(msg->matched_points),
+      to_romea(msg->twist)});
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_current_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
+void Platoon::process_current_vehicle_matching_info_(
+  PathMatchingInfoMsg::ConstSharedPtr msg)
 {
-  platoon_->setCurrentVehicleInfo(
-    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
+  platoon_->set_current_vehicle_info(
+        {
+          to_romea_duration(msg->header.stamp),
+          to_romea(msg->matched_points),
+          to_romea(msg->twist)
+        }
+  );
 
-  auto speed = platoon_->computeLinearSpeedCommand(to_romea_duration(msg->header.stamp));
+  auto speed = platoon_->compute_linear_speed_command(to_romea_duration(msg->header.stamp));
 
   if (is_activated_) {
     send_param_request(speed.value_or(0.5));
@@ -114,10 +128,16 @@ void PathPlatoon::process_current_vehicle_matching_info_(PathMatchingInfoMsg::Co
 }
 
 //-----------------------------------------------------------------------------
-void PathPlatoon::process_next_vehicle_matching_info_(PathMatchingInfoMsg::ConstSharedPtr msg)
+void Platoon::process_next_vehicle_matching_info_(
+  PathMatchingInfoMsg::ConstSharedPtr msg)
 {
-  platoon_->setNextVehicleInfo(
-    {to_romea_duration(msg->header.stamp), to_romea(msg->matched_points), to_romea(msg->twist)});
+  platoon_->set_next_vehicle_info(
+        {
+          to_romea_duration(msg->header.stamp),
+          to_romea(msg->matched_points),
+          to_romea(msg->twist)
+        }
+  );
 }
 
 void PathPlatoon::send_param_request(double speed)
@@ -132,4 +152,6 @@ void PathPlatoon::send_param_request(double speed)
   path_following_parameters_client_->async_send_request(request);
 }
 
-}  // namespace romea::ros2
+}  // namespace path_following
+}  // namespace ros2
+}  // namespace romea

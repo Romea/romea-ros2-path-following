@@ -23,11 +23,13 @@
 
 // romea
 #include "romea_joystick_utils/joystick.hpp"
-#include "romea_path_following/path_following.hpp"
+#include "romea_path_following/path_following/path_following.hpp"
 
 namespace romea
 {
 namespace ros2
+{
+namespace path_following
 {
 
 class PathFollowingComponent
@@ -51,6 +53,7 @@ private:
   bool autostart_;
 };
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
 

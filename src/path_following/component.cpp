@@ -21,11 +21,13 @@
 // romea
 #include "romea_common_utils/params/node_parameters.hpp"
 #include "romea_core_mobile_base/info/MobileBaseType.hpp"
-#include "romea_path_following/path_following_component.hpp"
+#include "romea_path_following/path_following/component.hpp"
 
 namespace romea
 {
 namespace ros2
+{
+namespace path_following
 {
 
 PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & options)
@@ -72,15 +74,17 @@ PathFollowingComponent::PathFollowingComponent(const rclcpp::NodeOptions & optio
     if (get_parameter<bool>(node_, "enable_joystick")) {
       joystick_ = std::make_unique<Joystick>(node_, get_joystick_mapping(node_));
 
-      joystick_->registerButtonCallback("start", JoystickButton::PRESSED, [this]() {
-        RCLCPP_INFO(node_->get_logger(), "button pressed: start");
-        node_->activate();
-      });
+      joystick_->registerButtonCallback(
+        "start", JoystickButton::PRESSED, [this]() {
+          RCLCPP_INFO(node_->get_logger(), "button pressed: start");
+          node_->activate();
+        });
 
-      joystick_->registerButtonCallback("stop", JoystickButton::PRESSED, [this]() {
-        RCLCPP_INFO(node_->get_logger(), "button pressed: stop");
-        node_->deactivate();
-      });
+      joystick_->registerButtonCallback(
+        "stop", JoystickButton::PRESSED, [this]() {
+          RCLCPP_INFO(node_->get_logger(), "button pressed: stop");
+          node_->deactivate();
+        });
     }
 
     if (get_parameter<bool>(node_, "autoconfigure")) {
@@ -126,8 +130,9 @@ PathFollowingComponent::CallbackReturn PathFollowingComponent::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 
+}  // namespace path_following
 }  // namespace ros2
 }  // namespace romea
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(romea::ros2::PathFollowingComponent)
+RCLCPP_COMPONENTS_REGISTER_NODE(romea::ros2::path_following::PathFollowingComponent)
