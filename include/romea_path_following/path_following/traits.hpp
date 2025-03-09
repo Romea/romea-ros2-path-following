@@ -21,6 +21,7 @@
 #include "romea_path_following/lateral_control/classic.hpp"
 #include "romea_path_following/lateral_control/predictive.hpp"
 #include "romea_path_following/lateral_control/front_rear_decoupled.hpp"
+#include "romea_path_following/lateral_control/skid_sliding.hpp"
 #include "romea_path_following/longitudinal_control/classic.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_linear_tangent.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
@@ -96,6 +97,7 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
   struct LateralControl
   {
     using BackStepping = LateralControlBackStepping<Command>;
+    using SkidSliding = LateralControlSkidSliding<Command>;
   };
 
   struct SlidingObserver

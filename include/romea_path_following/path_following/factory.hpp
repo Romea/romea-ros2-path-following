@@ -192,6 +192,7 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   using Base = PathFollowingTraits<Command>::PathFollowingBase;
   using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
   using LatCtrlBackStepping = PathFollowingTraits<Command>::LateralControl::BackStepping;
+  using LatCtrlSkidSliding = PathFollowingTraits<Command>::LateralControl::SkidSliding;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
@@ -209,9 +210,18 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
           std::string{"Unknown sliding_observer '"} + sliding_observer_name +
           "'. Available: [none]");
       }
+
+      if (lateral_control_name == "skid_sliding") {
+        if (sliding_observer_name == "none") {
+          return make_path_following<LatCtrlSkidSliding, LonCtrl>(node, lateral_control_name, "");
+        }
+        throw std::runtime_error(
+          std::string{"Unknown sliding_observer '"} + sliding_observer_name +
+          "'. Available: [none]");
+      }
       throw std::runtime_error(
         std::string{"Unknown lateral_control '"} + sliding_observer_name +
-        "'. Available: [back_stepping]");
+        "'. Available: [back_stepping, skid_sliding]");
     }
     return std::make_unique<core::path_following::OneAxleSteeringEquivalence>(
       PathFollowingFactory<core::OneAxleSteeringCommand>::make(
