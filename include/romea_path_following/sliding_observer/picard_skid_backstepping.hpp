@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__SKID_BACKSTEPPING_HPP_
-#define ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__SKID_BACKSTEPPING_HPP_
+#ifndef ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__PICARD_SKID_BACKSTEPPING_HPP_
+#define ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__PICARD_SKID_BACKSTEPPING_HPP_
 
 // std
 #include <memory>
 #include <string>
 
 // romea
-#include <romea_core_path_following/sliding_observer/skid_backstepping.hpp>
+#include <romea_core_path_following/sliding_observer/picard_skid_backstepping.hpp>
 
 #include "romea_path_following/path_following/parameters.hpp"
 
@@ -28,17 +28,17 @@ namespace romea::ros2::path_following
 {
 
 template<typename CommandType>
-class SlidingObserverSkidBackstepping
-: public core::path_following::SlidingObserverSkidBackstepping<CommandType>
+class SlidingObserverPicardSkidBackstepping
+: public core::path_following::SlidingObserverPicardSkidBackstepping<CommandType>
 {
 public:
-  using T = SlidingObserverSkidBackstepping<CommandType>;
-  using Core = core::path_following::SlidingObserverSkidBackstepping<CommandType>;
+  using T = SlidingObserverPicardSkidBackstepping<CommandType>;
+  using Core = core::path_following::SlidingObserverPicardSkidBackstepping<CommandType>;
   using Parameters = typename Core::Parameters;
 
 public:
   template<typename Node>
-  SlidingObserverSkidBackstepping(
+  SlidingObserverPicardSkidBackstepping(
     std::shared_ptr<Node> node, const std::string & ns = "sliding_observer")
   : Core(try_declare_and_get_sampling_period(node), std::invoke([node, ns]() {
            declare_parameters(node, ns);

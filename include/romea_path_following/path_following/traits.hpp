@@ -25,7 +25,7 @@
 #include "romea_path_following/longitudinal_control/classic.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_linear_tangent.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
-#include "romea_path_following/sliding_observer/skid_backstepping.hpp"
+#include "romea_path_following/sliding_observer/picard_skid_backstepping.hpp"
 
 namespace romea::ros2::path_following
 {
@@ -103,7 +103,7 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
 
   struct SlidingObserver
   {
-    using Backstepping = SlidingObserverSkidBackstepping<Command>;
+    using PicardSkidBackstepping = SlidingObserverPicardSkidBackstepping<Command>;
   };
 };
 

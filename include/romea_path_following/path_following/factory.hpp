@@ -193,7 +193,7 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
   using LatCtrlBackStepping = PathFollowingTraits<Command>::LateralControl::BackStepping;
   using LatCtrlSkidSliding = PathFollowingTraits<Command>::LateralControl::SkidSliding;
-  using SlObsBackstepping = PathFollowingTraits<Command>::SlidingObserver::Backstepping;
+  using SOPSBackstepping = PathFollowingTraits<Command>::SlidingObserver::PicardSkidBackstepping;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
@@ -217,7 +217,7 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
           return make_path_following<LatCtrlSkidSliding, LonCtrl>(node, lateral_control_name, "");
         }
         if (sliding_observer_name == "picard_backstepping") {
-          return make_path_following<LatCtrlSkidSliding, LonCtrl, SlObsBackstepping>(
+          return make_path_following<LatCtrlSkidSliding, LonCtrl, SOPSBackstepping>(
             node, lateral_control_name, "", sliding_observer_name);
         }
         throw std::runtime_error(
