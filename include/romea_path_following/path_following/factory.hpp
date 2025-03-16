@@ -194,6 +194,7 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   using LatCtrlBackStepping = PathFollowingTraits<Command>::LateralControl::BackStepping;
   using LatCtrlSkidSliding = PathFollowingTraits<Command>::LateralControl::SkidSliding;
   using SOPSBackstepping = PathFollowingTraits<Command>::SlidingObserver::PicardSkidBackstepping;
+  using SOPSLyapunov = PathFollowingTraits<Command>::SlidingObserver::PicardSkidLyapunov;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
@@ -216,13 +217,17 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
         if (sliding_observer_name == "none") {
           return make_path_following<LatCtrlSkidSliding, LonCtrl>(node, lateral_control_name, "");
         }
-        if (sliding_observer_name == "picard_backstepping") {
+        if (sliding_observer_name == "picard_skid_backstepping") {
           return make_path_following<LatCtrlSkidSliding, LonCtrl, SOPSBackstepping>(
+            node, lateral_control_name, "", sliding_observer_name);
+        }
+        if (sliding_observer_name == "picard_skid_lyapunov") {
+          return make_path_following<LatCtrlSkidSliding, LonCtrl, SOPSLyapunov>(
             node, lateral_control_name, "", sliding_observer_name);
         }
         throw std::runtime_error(
           std::string{"Unknown sliding_observer '"} + sliding_observer_name +
-          "'. Available: [none, picard_backstepping]");
+          "'. Available: [none, picard_skid_backstepping, picard_skid_lyapunov]");
       }
       throw std::runtime_error(
         std::string{"Unknown lateral_control '"} + sliding_observer_name +

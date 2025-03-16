@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__PICARD_SKID_BACKSTEPPING_HPP_
-#define ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__EXTENDED__PICARD_SKID_BACKSTEPPING_HPP_
+#ifndef ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__SKID__PICARD_BACKSTEPPING_HPP_
+#define ROMEA_PATH_FOLLOWING__SLIDING_OBSERVER__SKID__PICARD_BACKSTEPPING_HPP_
 
 // std
 #include <memory>
 #include <string>
 
 // romea
-#include <romea_core_path_following/sliding_observer/picard_skid_backstepping.hpp>
+#include <romea_core_path_following/sliding_observer/skid/picard_backstepping.hpp>
 
 #include "romea_path_following/path_following/parameters.hpp"
 
