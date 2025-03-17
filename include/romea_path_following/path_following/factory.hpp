@@ -213,7 +213,7 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
           "'. Available: [none]");
       }
 
-      if (lateral_control_name == "skid_sliding") {
+      if (lateral_control_name == "skid_backstepping") {
         if (sliding_observer_name == "none") {
           return make_path_following<LatCtrlSkidSliding, LonCtrl>(node, lateral_control_name, "");
         }
@@ -230,8 +230,8 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
           "'. Available: [none, picard_skid_backstepping, picard_skid_lyapunov]");
       }
       throw std::runtime_error(
-        std::string{"Unknown lateral_control '"} + sliding_observer_name +
-        "'. Available: [back_stepping, skid_sliding]");
+        std::string{"Unknown lateral_control '"} + lateral_control_name +
+        "'. Available: [back_stepping, skid_backstepping]");
     }
     return std::make_unique<core::path_following::OneAxleSteeringEquivalence>(
       PathFollowingFactory<core::OneAxleSteeringCommand>::make(

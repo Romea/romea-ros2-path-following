@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_PATH_FOLLOWING__LATERAL_CONTROL__SKID_SLIDING_HPP_
-#define ROMEA_PATH_FOLLOWING__LATERAL_CONTROL__SKID_SLIDING_HPP_
+#ifndef ROMEA_PATH_FOLLOWING__LATERAL_CONTROL__SKID_BACKSTEPPING_HPP_
+#define ROMEA_PATH_FOLLOWING__LATERAL_CONTROL__SKID_BACKSTEPPING_HPP_
 
 // std
 #include <memory>
@@ -21,7 +21,7 @@
 
 // romea
 #include <romea_common_utils/params/node_parameters.hpp>
-#include <romea_core_path_following/lateral_control/skid_sliding.hpp>
+#include <romea_core_path_following/lateral_control/skid_backstepping.hpp>
 
 #include "romea_path_following/lateral_control/base.hpp"
 
@@ -29,11 +29,11 @@ namespace romea::ros2::path_following
 {
 
 template<typename CommandType>
-class LateralControlSkidSliding
-: public LateralControlBase<core::path_following::LateralControlSkidSliding, CommandType>
+class LateralControlSkidBackstepping
+: public LateralControlBase<core::path_following::LateralControlSkidBackstepping, CommandType>
 {
 public:
-  using Base = LateralControlBase<core::path_following::LateralControlSkidSliding, CommandType>;
+  using Base = LateralControlBase<core::path_following::LateralControlSkidBackstepping, CommandType>;
   using Parameters = typename Base::Parameters;
   using Gains = typename Base::Gains;
 
@@ -42,7 +42,7 @@ public:
 
 public:
   template<typename Node>
-  LateralControlSkidSliding(std::shared_ptr<Node> node, const std::string & ns = "lateral_control")
+  LateralControlSkidBackstepping(std::shared_ptr<Node> node, const std::string & ns = "lateral_control")
   : Base(node, ns, std::invoke([node, ns]() {
            declare_parameters(node, ns);
            return get_parameters(node, ns);
