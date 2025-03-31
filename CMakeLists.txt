@@ -107,7 +107,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
 
 
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::ros2::path_following::PathPlatoonComponent"
+  PLUGIN "romea::ros2::path_following::PlatoonComponent"
   EXECUTABLE path_platoon_node
 )
 
