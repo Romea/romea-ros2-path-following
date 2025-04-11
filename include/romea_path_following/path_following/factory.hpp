@@ -194,7 +194,8 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
   using LatCtrlBackStepping = PathFollowingTraits<Command>::LateralControl::BackStepping;
   using LatCtrlSkidSliding = PathFollowingTraits<Command>::LateralControl::SkidSliding;
   using LatCtrlGeneric = PathFollowingTraits<Command>::LateralControl::DesbosGeneric;
-  using LatCtrlGenPred = PathFollowingTraits<Command>::LateralControl::DesbosGenericPredictive;
+  using LcGenPredHmpc = PathFollowingTraits<Command>::LateralControl::DesbosGenericPredictiveHmpc;
+  using LcGenPredLmpc = PathFollowingTraits<Command>::LateralControl::DesbosGenericPredictiveLmpc;
   using SOPSBackstepping = PathFollowingTraits<Command>::SlidingObserver::PicardSkidBackstepping;
   using SOPSLyapunov = PathFollowingTraits<Command>::SlidingObserver::PicardSkidLyapunov;
 
@@ -221,8 +222,11 @@ struct PathFollowingFactory<core::SkidSteeringCommand>
       if (lateral_control_name == "desbos_generic") {
         return make_sliding<LatCtrlGeneric>(node, lateral_control_name, sliding_observer_name);
       }
-      if (lateral_control_name == "desbos_generic_predictive") {
-        return make_sliding<LatCtrlGenPred>(node, lateral_control_name, sliding_observer_name);
+      if (lateral_control_name == "desbos_generic_predictive_hmpc") {
+        return make_sliding<LcGenPredHmpc>(node, lateral_control_name, sliding_observer_name);
+      }
+      if (lateral_control_name == "desbos_generic_predictive_lmpc") {
+        return make_sliding<LcGenPredLmpc>(node, lateral_control_name, sliding_observer_name);
       }
       throw std::runtime_error(
         std::string{"Unknown lateral_control '"} + lateral_control_name +

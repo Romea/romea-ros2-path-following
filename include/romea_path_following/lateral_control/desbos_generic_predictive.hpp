@@ -69,8 +69,8 @@ public:
       declare_parameter<double>(node, parameters_ns, "prediction.b2");
       declare_parameter<int>(node, parameters_ns, "prediction.horizon");
       declare_parameter<bool>(node, parameters_ns, "adaptive_gains");
-      declare_parameter<bool>(node, parameters_ns, "lmpc");
-      declare_parameter<int>(node, parameters_ns, "model_order");
+      declare_parameter_with_default(node, parameters_ns, "lmpc", true);
+      declare_parameter_with_default<int>(node, parameters_ns, "model_order", 1);
     }
   }
 
@@ -113,6 +113,35 @@ private:
         this->get_gain_(node_parameters, "gains.ks", this->default_gains_.ks),
       };
     }
+  }
+};
+
+template<typename CommandType>
+class LateralControlDesbosGenericPredictiveHmpc
+: public LateralControlDesbosGenericPredictive<CommandType>
+{
+public:
+  template<typename Node>
+  LateralControlDesbosGenericPredictiveHmpc(
+    std::shared_ptr<Node> node, const std::string & ns = "lateral_control")
+  : LateralControlDesbosGenericPredictive<CommandType>(node, ns)
+  {
+    this->lateral_control_->set_lmpc(false);
+  }
+};
+
+
+template<typename CommandType>
+class LateralControlDesbosGenericPredictiveLmpc
+: public LateralControlDesbosGenericPredictive<CommandType>
+{
+public:
+  template<typename Node>
+  LateralControlDesbosGenericPredictiveLmpc(
+    std::shared_ptr<Node> node, const std::string & ns = "lateral_control")
+  : LateralControlDesbosGenericPredictive<CommandType>(node, ns)
+  {
+    this->lateral_control_->set_lmpc(true);
   }
 };
 

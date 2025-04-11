@@ -105,7 +105,8 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
     using BackStepping = LateralControlBackStepping<Command>;
     using SkidSliding = LateralControlSkidBackstepping<Command>;
     using DesbosGeneric = LateralControlDesbosGeneric<Command>;
-    using DesbosGenericPredictive = LateralControlDesbosGenericPredictive<Command>;
+    using DesbosGenericPredictiveHmpc = LateralControlDesbosGenericPredictiveHmpc<Command>;
+    using DesbosGenericPredictiveLmpc = LateralControlDesbosGenericPredictiveLmpc<Command>;
   };
 
   struct SlidingObserver
