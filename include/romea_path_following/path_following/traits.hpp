@@ -16,12 +16,16 @@
 #define ROMEA_PATH_FOLLOWING__PATH_FOLLOWING_TRAITS_HPP_
 
 // romea
-#include "romea_core_path_following/path_following.hpp"
+#include <romea_core_path_following/path_following.hpp>
+
+// local
 #include "romea_path_following/lateral_control/back_stepping.hpp"
 #include "romea_path_following/lateral_control/classic.hpp"
 #include "romea_path_following/lateral_control/predictive.hpp"
 #include "romea_path_following/lateral_control/front_rear_decoupled.hpp"
 #include "romea_path_following/lateral_control/skid_backstepping.hpp"
+#include "romea_path_following/lateral_control/desbos_generic.hpp"
+#include "romea_path_following/lateral_control/desbos_generic_predictive.hpp"
 #include "romea_path_following/longitudinal_control/classic.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_linear_tangent.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
@@ -100,6 +104,8 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
   {
     using BackStepping = LateralControlBackStepping<Command>;
     using SkidSliding = LateralControlSkidBackstepping<Command>;
+    using DesbosGeneric = LateralControlDesbosGeneric<Command>;
+    using DesbosGenericPredictive = LateralControlDesbosGenericPredictive<Command>;
   };
 
   struct SlidingObserver
