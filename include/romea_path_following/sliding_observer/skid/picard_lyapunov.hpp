@@ -40,10 +40,10 @@ public:
   template<typename Node>
   SlidingObserverPicardSkidLyapunov(
     std::shared_ptr<Node> node, const std::string & ns = "sliding_observer")
-  : Core(try_declare_and_get_sampling_period(node), std::invoke([node, ns]() {
-           declare_parameters(node, ns);
-           return get_parameters(node, ns);
-         }))
+  : Core(std::invoke([node, ns]() {
+      declare_parameters(node, ns);
+      return get_parameters(node, ns);
+    }))
   {
   }
 

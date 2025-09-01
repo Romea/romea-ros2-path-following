@@ -27,6 +27,8 @@
 #include "romea_path_following/lateral_control/desbos_generic.hpp"
 #include "romea_path_following/lateral_control/desbos_generic_predictive.hpp"
 #include "romea_path_following/longitudinal_control/classic.hpp"
+#include "romea_path_following/longitudinal_control/constant.hpp"
+#include "romea_path_following/longitudinal_control/curvature_transition.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_linear_tangent.hpp"
 #include "romea_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
 #include "romea_path_following/sliding_observer/skid/picard_backstepping.hpp"
@@ -49,6 +51,8 @@ struct PathFollowingTraits<core::OneAxleSteeringCommand>
   struct LongitudinalControl
   {
     using Classic = LongitudinalControlClassic<Command>;
+    using Constant = LongitudinalControlConstant<Command>;
+    using CurvatureTransition = LongitudinalControlCurvatureTransition<Command>;
   };
 
   struct LateralControl
@@ -73,6 +77,8 @@ struct PathFollowingTraits<core::TwoAxleSteeringCommand>
   struct LongitudinalControl
   {
     using Classic = LongitudinalControlClassic<Command>;
+    using Constant = LongitudinalControlConstant<Command>;
+    using CurvatureTransition = LongitudinalControlCurvatureTransition<Command>;
   };
 
   struct LateralControl
@@ -98,6 +104,8 @@ struct PathFollowingTraits<core::SkidSteeringCommand>
   struct LongitudinalControl
   {
     using Classic = LongitudinalControlClassic<Command>;
+    using Constant = LongitudinalControlConstant<Command>;
+    using CurvatureTransition = LongitudinalControlCurvatureTransition<Command>;
   };
 
   struct LateralControl

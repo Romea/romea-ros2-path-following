@@ -176,6 +176,18 @@ std::string get_selected_lateral_control(std::shared_ptr<Node> node)
 }
 
 template<typename Node>
+void declare_selected_longitudinal_control(std::shared_ptr<Node> node)
+{
+  declare_parameter<std::string>(node, "longitudinal_control", "selected");
+}
+
+template<typename Node>
+std::string get_selected_longitudinal_control(std::shared_ptr<Node> node)
+{
+  return get_parameter<std::string>(node, "longitudinal_control", "selected");
+}
+
+template<typename Node>
 void declare_selected_sliding_observer(std::shared_ptr<Node> node)
 {
   declare_parameter_with_default<std::string>(node, "sliding_observer", "selected", "none");

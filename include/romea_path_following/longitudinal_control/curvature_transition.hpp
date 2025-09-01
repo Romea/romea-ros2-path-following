@@ -12,30 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
-#define ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
+#ifndef ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CURVATURE_TRANSITION_HPP_
+#define ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CURVATURE_TRANSITION_HPP_
 
 // std
 #include <string>
 
 // romea
-#include "romea_common_utils/params/node_parameters.hpp"
-#include "romea_core_path_following/longitudinal_control/classic.hpp"
+#include <romea_common_utils/params/node_parameters.hpp>
+#include <romea_core_path_following/longitudinal_control/curvature_transition.hpp>
 
 namespace romea::ros2::path_following
 {
 
 template<typename CommandType>
-class LongitudinalControlClassic
-: public core::path_following::LongitudinalControlClassic<CommandType>
+class LongitudinalControlCurvatureTransition
+: public core::path_following::LongitudinalControlCurvatureTransition<CommandType>
 {
 public:
-  using Core = core::path_following::LongitudinalControlClassic<CommandType>;
+  using Core = core::path_following::LongitudinalControlCurvatureTransition<CommandType>;
   using Parameters = typename Core::Parameters;
 
 public:
   template<typename Node>
-  LongitudinalControlClassic(
+  LongitudinalControlCurvatureTransition(
     std::shared_ptr<Node> node, const std::string & ns = "longitudinal_control")
   : Core(std::invoke([node, ns]() {
       declare_parameters(node, ns);
@@ -48,6 +48,10 @@ public:
   static void declare_parameters(std::shared_ptr<Node> node, const std::string & params_ns)
   {
     declare_parameter<double>(node, params_ns, "minimal_linear_speed");
+    declare_parameter<double>(node, params_ns, "lateral_error_max");
+    declare_parameter<double>(node, params_ns, "settling_time");
+    declare_parameter<double>(node, params_ns, "settling_distance");
+    declare_parameter<double>(node, params_ns, "convergence_ratio");
   }
 
   template<typename Node>
@@ -55,10 +59,14 @@ public:
   {
     return {
       get_parameter<double>(node, params_ns, "minimal_linear_speed"),
+      get_parameter<double>(node, params_ns, "lateral_error_max"),
+      get_parameter<double>(node, params_ns, "settling_time"),
+      get_parameter<double>(node, params_ns, "settling_distance"),
+      get_parameter<double>(node, params_ns, "convergence_ratio"),
     };
   }
 };
 
 }  // namespace romea::ros2::path_following
 
-#endif  // ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
+#endif  // ROMEA_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CURVATURE_TRANSITION_HPP_

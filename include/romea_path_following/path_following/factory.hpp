@@ -17,10 +17,12 @@
 
 // std
 #include <memory>
+#include <romea_core_mobile_base/kinematic/skid_steering/SkidSteeringCommand.hpp>
 #include <stdexcept>
 #include <string>
 
 // romea
+#include "romea_path_following/path_following/parameters.hpp"
 #include "romea_path_following/path_following/traits.hpp"
 
 namespace romea::ros2::path_following
@@ -71,26 +73,55 @@ struct PathFollowingFactory
 template<>
 struct PathFollowingFactory<core::OneAxleSteeringCommand>
 {
-  using Command = core::OneAxleSteeringCommand;
-  using Base = PathFollowingTraits<Command>::PathFollowingBase;
-  using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
-  using LatCtrlClassic = PathFollowingTraits<Command>::LateralControl::Classic;
-  using LatCtrlPredictive = PathFollowingTraits<Command>::LateralControl::Predictive;
-  using SlObsExtendedCinematic = PathFollowingTraits<Command>::SlidingObserver::ExtendedCinematic;
-  using SlObsExtendedLyapunov = PathFollowingTraits<Command>::SlidingObserver::ExtendedLyapunov;
+  using Traits = PathFollowingTraits<core::OneAxleSteeringCommand>;
+  using Base = Traits::PathFollowingBase;
+  using LonCtrlClassic = Traits::LongitudinalControl::Classic;
+  using LonCtrlConst = Traits::LongitudinalControl::Constant;
+  using LonCtrlCurvTrans = Traits::LongitudinalControl::CurvatureTransition;
+  using LatCtrlClassic = Traits::LateralControl::Classic;
+  using LatCtrlPredictive = Traits::LateralControl::Predictive;
+  using SlObsExtendedCinematic = Traits::SlidingObserver::ExtendedCinematic;
+  using SlObsExtendedLyapunov = Traits::SlidingObserver::ExtendedLyapunov;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
+    const std::string & longitudinal_control,
+    const std::string & lateral_control,
+    const std::string & sliding_observer)
+  {
+    if (longitudinal_control == "constant") {
+      return make<LonCtrlConst>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "classic") {
+      return make<LonCtrlClassic>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "curvature_transition") {
+      return make<LonCtrlCurvTrans>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    throw std::runtime_error(
+      std::string{"Unknown longitudinal_control '"} + longitudinal_control +
+      "'. Available: [constant, classic, curvature_transition]");
+  }
+
+  template<typename LonCtrl, typename Node>
+  static std::unique_ptr<Base> make(
+    std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
     const std::string & lateral_control_name,
     const std::string & sliding_observer_name)
   {
     if (lateral_control_name == "classic") {
-      return make<LatCtrlClassic>(node, lateral_control_name, sliding_observer_name);
+      return make<LonCtrl, LatCtrlClassic>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
     }
 
     if (lateral_control_name == "predictive") {
-      return make<LatCtrlPredictive>(node, lateral_control_name, sliding_observer_name);
+      return make<LonCtrl, LatCtrlPredictive>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
     }
 
     throw std::runtime_error(
@@ -98,24 +129,26 @@ struct PathFollowingFactory<core::OneAxleSteeringCommand>
       "'. Available: [classic, predictive]");
   }
 
-  template<typename LatCtrl, typename Node>
+  template<typename LonCtrl, typename LatCtrl, typename Node>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
     const std::string & lateral_control_name,
     const std::string & sliding_observer_name)
   {
     if (sliding_observer_name == "none") {
-      return make_path_following<LatCtrl, LonCtrl>(node, lateral_control_name, "");
+      return make_path_following<LatCtrl, LonCtrl>(
+        node, lateral_control_name, longitudinal_control_name);
     }
 
     if (sliding_observer_name == "extended_cinematic") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedCinematic>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
 
     if (sliding_observer_name == "extended_lyapunov") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedLyapunov>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
 
     throw std::runtime_error(
@@ -127,31 +160,61 @@ struct PathFollowingFactory<core::OneAxleSteeringCommand>
 template<>
 struct PathFollowingFactory<core::TwoAxleSteeringCommand>
 {
-  using Command = core::TwoAxleSteeringCommand;
-  using Base = PathFollowingTraits<Command>::PathFollowingBase;
-  using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
-  using LatCtrlClassic = PathFollowingTraits<Command>::LateralControl::Classic;
-  using LatCtrlPredictive = PathFollowingTraits<Command>::LateralControl::Predictive;
-  using LatCtrlDecoupled = PathFollowingTraits<Command>::LateralControl::FrontRearDecoupled;
-  using SlObsExtendedCinematic = PathFollowingTraits<Command>::SlidingObserver::ExtendedCinematic;
-  using SlObsExtendedLyapunov = PathFollowingTraits<Command>::SlidingObserver::ExtendedLyapunov;
+  using Traits = PathFollowingTraits<core::TwoAxleSteeringCommand>;
+  using Base = Traits::PathFollowingBase;
+  using LonCtrlClassic = Traits::LongitudinalControl::Classic;
+  using LonCtrlConst = Traits::LongitudinalControl::Constant;
+  using LonCtrlCurvTrans = Traits::LongitudinalControl::CurvatureTransition;
+  using LatCtrlClassic = Traits::LateralControl::Classic;
+  using LatCtrlPredictive = Traits::LateralControl::Predictive;
+  using LatCtrlDecoupled = Traits::LateralControl::FrontRearDecoupled;
+  using SlObsExtendedCinematic = Traits::SlidingObserver::ExtendedCinematic;
+  using SlObsExtendedLyapunov = Traits::SlidingObserver::ExtendedLyapunov;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
+    const std::string & longitudinal_control,
+    const std::string & lateral_control,
+    const std::string & sliding_observer)
+  {
+    if (longitudinal_control == "constant") {
+      return make<LonCtrlConst>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "classic") {
+      return make<LonCtrlClassic>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "curvature_transition") {
+      return make<LonCtrlCurvTrans>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    throw std::runtime_error(
+      std::string{"Unknown longitudinal_control '"} + longitudinal_control +
+      "'. Available: [constant, classic, curvature_transition]");
+  }
+
+  template<typename LonCtrl, typename Node>
+  static std::unique_ptr<Base> make(
+    std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
     const std::string & lateral_control_name,
     const std::string & sliding_observer_name)
   {
     if (lateral_control_name == "classic") {
-      return make<LatCtrlClassic>(node, lateral_control_name, sliding_observer_name);
+      return make<LonCtrl, LatCtrlClassic>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
     }
 
     if (lateral_control_name == "predictive") {
-      return make<LatCtrlPredictive>(node, lateral_control_name, sliding_observer_name);
+      return make<LonCtrl, LatCtrlPredictive>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
     }
 
     if (lateral_control_name == "front_rear_decoupled") {
-      return make<LatCtrlDecoupled>(node, lateral_control_name, sliding_observer_name);
+      return make<LonCtrl, LatCtrlDecoupled>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
     }
 
     throw std::runtime_error(
@@ -159,24 +222,26 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
       "'. Available: [classic, predictive, front_rear_decoupled]");
   }
 
-  template<typename LatCtrl, typename Node>
+  template<typename LonCtrl, typename LatCtrl, typename Node>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
     const std::string & lateral_control_name,
     const std::string & sliding_observer_name)
   {
     if (sliding_observer_name == "none") {
-      return make_path_following<LatCtrl, LonCtrl>(node, lateral_control_name, "");
+      return make_path_following<LatCtrl, LonCtrl>(
+        node, lateral_control_name, longitudinal_control_name);
     }
 
     if (sliding_observer_name == "extended_cinematic") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedCinematic>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
 
     if (sliding_observer_name == "extended_lyapunov") {
       return make_path_following<LatCtrl, LonCtrl, SlObsExtendedLyapunov>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
 
     throw std::runtime_error(
@@ -188,72 +253,108 @@ struct PathFollowingFactory<core::TwoAxleSteeringCommand>
 template<>
 struct PathFollowingFactory<core::SkidSteeringCommand>
 {
-  using Command = core::SkidSteeringCommand;
-  using Base = PathFollowingTraits<Command>::PathFollowingBase;
-  using LonCtrl = PathFollowingTraits<Command>::LongitudinalControl::Classic;
-  using LatCtrlBackStepping = PathFollowingTraits<Command>::LateralControl::BackStepping;
-  using LatCtrlSkidSliding = PathFollowingTraits<Command>::LateralControl::SkidSliding;
-  using LatCtrlGeneric = PathFollowingTraits<Command>::LateralControl::DesbosGeneric;
-  using LcGenPredHmpc = PathFollowingTraits<Command>::LateralControl::DesbosGenericPredictiveHmpc;
-  using LcGenPredLmpc = PathFollowingTraits<Command>::LateralControl::DesbosGenericPredictiveLmpc;
-  using SOPSBackstepping = PathFollowingTraits<Command>::SlidingObserver::PicardSkidBackstepping;
-  using SOPSLyapunov = PathFollowingTraits<Command>::SlidingObserver::PicardSkidLyapunov;
+  using Traits = PathFollowingTraits<core::SkidSteeringCommand>;
+  using Base = Traits::PathFollowingBase;
+  using LonCtrlClassic = Traits::LongitudinalControl::Classic;
+  using LonCtrlConst = Traits::LongitudinalControl::Constant;
+  using LonCtrlCurvTrans = Traits::LongitudinalControl::CurvatureTransition;
+  using LatCtrlBackStepping = Traits::LateralControl::BackStepping;
+  using LatCtrlSkidSliding = Traits::LateralControl::SkidSliding;
+  using LatCtrlGeneric = Traits::LateralControl::DesbosGeneric;
+  using LcGenPredHmpc = Traits::LateralControl::DesbosGenericPredictiveHmpc;
+  using LcGenPredLmpc = Traits::LateralControl::DesbosGenericPredictiveLmpc;
+  using SOPSBackstepping = Traits::SlidingObserver::PicardSkidBackstepping;
+  using SOPSLyapunov = Traits::SlidingObserver::PicardSkidLyapunov;
 
   template<typename Node>
   static std::unique_ptr<Base> make(
     std::shared_ptr<Node> node,
-    const std::string & lateral_control_name,
-    const std::string & sliding_observer_name,
+    const std::string & longitudinal_control,
+    const std::string & lateral_control,
+    const std::string & sliding_observer,
     bool one_axle_steering_equivalence = false)
   {
-    if (!one_axle_steering_equivalence) {
-      if (lateral_control_name == "back_stepping") {
-        if (sliding_observer_name == "none") {
-          return make_path_following<LatCtrlBackStepping, LonCtrl>(node, lateral_control_name, "");
-        }
-        throw std::runtime_error(
-          std::string{"Unknown sliding_observer '"} + sliding_observer_name +
-          "'. Available: [none]");
-      }
+    if (one_axle_steering_equivalence) {
+      return std::make_unique<core::path_following::OneAxleSteeringEquivalence>(
+        PathFollowingFactory<core::OneAxleSteeringCommand>::make(
+          node, longitudinal_control, lateral_control, sliding_observer),
+        try_declare_and_get_wheelbase(node));
+    }
 
-      if (lateral_control_name == "skid_backstepping") {
-        return make_sliding<LatCtrlSkidSliding>(node, lateral_control_name, sliding_observer_name);
-      }
-      if (lateral_control_name == "desbos_generic") {
-        return make_sliding<LatCtrlGeneric>(node, lateral_control_name, sliding_observer_name);
-      }
-      if (lateral_control_name == "desbos_generic_predictive_hmpc") {
-        return make_sliding<LcGenPredHmpc>(node, lateral_control_name, sliding_observer_name);
-      }
-      if (lateral_control_name == "desbos_generic_predictive_lmpc") {
-        return make_sliding<LcGenPredLmpc>(node, lateral_control_name, sliding_observer_name);
+    if (longitudinal_control == "constant") {
+      return make<LonCtrlConst>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "classic") {
+      return make<LonCtrlClassic>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    if (longitudinal_control == "curvature_transition") {
+      return make<LonCtrlCurvTrans>(node, longitudinal_control, lateral_control, sliding_observer);
+    }
+
+    throw std::runtime_error(
+      std::string{"Unknown longitudinal_control '"} + longitudinal_control +
+      "'. Available: [constant, classic, curvature_transition]");
+  }
+
+  template<typename LonCtrl, typename Node>
+  static std::unique_ptr<Base> make(
+    std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
+    const std::string & lateral_control_name,
+    const std::string & sliding_observer_name)
+  {
+    if (lateral_control_name == "back_stepping") {
+      if (sliding_observer_name == "none") {
+        return make_path_following<LatCtrlBackStepping, LonCtrl>(
+          node, lateral_control_name, longitudinal_control_name);
       }
       throw std::runtime_error(
-        std::string{"Unknown lateral_control '"} + lateral_control_name +
-        "'. Available: [back_stepping, skid_backstepping]");
+        std::string{"Unknown sliding_observer '"} + sliding_observer_name + "'. Available: [none]");
     }
-    return std::make_unique<core::path_following::OneAxleSteeringEquivalence>(
-      PathFollowingFactory<core::OneAxleSteeringCommand>::make(
-        node, lateral_control_name, sliding_observer_name));
+
+    if (lateral_control_name == "skid_backstepping") {
+      return make_sliding<LonCtrl, LatCtrlSkidSliding>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
+    }
+    if (lateral_control_name == "desbos_generic") {
+      return make_sliding<LonCtrl, LatCtrlGeneric>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
+    }
+    if (lateral_control_name == "desbos_generic_predictive_hmpc") {
+      return make_sliding<LonCtrl, LcGenPredHmpc>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
+    }
+    if (lateral_control_name == "desbos_generic_predictive_lmpc") {
+      return make_sliding<LonCtrl, LcGenPredLmpc>(
+        node, longitudinal_control_name, lateral_control_name, sliding_observer_name);
+    }
+    throw std::runtime_error(
+      std::string{"Unknown lateral_control '"} + lateral_control_name +
+      "'. Available: [back_stepping, skid_backstepping, desbos_generic, "
+      "desbos_generic_predictive_hmpc, desbos_generic_predictive_lmpc]");
   }
 
 private:
-  template<typename LatCtrl, typename Node>
+  template<typename LonCtrl, typename LatCtrl, typename Node>
   static std::unique_ptr<Base> make_sliding(
     std::shared_ptr<Node> node,
+    const std::string & longitudinal_control_name,
     const std::string & lateral_control_name,
     const std::string & sliding_observer_name)
   {
     if (sliding_observer_name == "none") {
-      return make_path_following<LatCtrl, LonCtrl>(node, lateral_control_name, "");
+      return make_path_following<LatCtrl, LonCtrl>(
+        node, lateral_control_name, longitudinal_control_name);
     }
     if (sliding_observer_name == "picard_skid_backstepping") {
       return make_path_following<LatCtrl, LonCtrl, SOPSBackstepping>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
     if (sliding_observer_name == "picard_skid_lyapunov") {
       return make_path_following<LatCtrl, LonCtrl, SOPSLyapunov>(
-        node, lateral_control_name, "", sliding_observer_name);
+        node, lateral_control_name, longitudinal_control_name, sliding_observer_name);
     }
     throw std::runtime_error(
       std::string{"Unknown sliding_observer '"} + sliding_observer_name +

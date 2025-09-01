@@ -19,10 +19,12 @@
 
 // romea
 #include <romea_common_utils/params/algorithm_parameters.hpp>
+#include <romea_core_common/time/Time.hpp>
 #include <romea_mobile_base_utils/params/command_interface_parameters.hpp>
 
 // local
 #include "romea_path_following/path_following/factory.hpp"
+#include "romea_path_following/path_following/parameters.hpp"
 #include "romea_path_following/path_following/path_following.hpp"
 
 namespace romea::ros2::path_following
@@ -35,6 +37,7 @@ PathFollowing<CommandType>::PathFollowing(Node::SharedPtr node) : node_(std::mov
   declare_setpoint(node_);
   declare_stop_at_the_end(node_);
   declare_selected_lateral_control(node_);
+  declare_selected_longitudinal_control(node_);
   declare_selected_sliding_observer(node_);
   declare_command_limits<CommandLimits>(node_);
   declare_command_interface_configuration(node_, "cmd_output");
@@ -55,22 +58,25 @@ void PathFollowing<CommandType>::configure()
 {
   setpoint_.store(get_setpoint(node_));
 
-  auto const & lateral_control = get_selected_lateral_control(node_);
-  auto const & sliding_observer = get_selected_sliding_observer(node_);
+  const auto & lateral_control = get_selected_lateral_control(node_);
+  const auto & longitudinal_control = get_selected_longitudinal_control(node_);
+  const auto & sliding_observer = get_selected_sliding_observer(node_);
 
   RCLCPP_INFO_STREAM(node_->get_logger(), "lateral_control: " << lateral_control);
+  RCLCPP_INFO_STREAM(node_->get_logger(), "longitudinal_control: " << longitudinal_control);
   RCLCPP_INFO_STREAM(node_->get_logger(), "sliding_observer: " << sliding_observer);
 
   if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>) {
     declare_one_steering_equivalence(node_);
     path_following_ = PathFollowingFactory<CommandType>::make(
       node_,
+      longitudinal_control,
       lateral_control,
       sliding_observer,
       get_one_steering_equivalence(node_));
   } else {
     path_following_ = PathFollowingFactory<CommandType>::make(
-      node_, lateral_control, sliding_observer);
+      node_, longitudinal_control, lateral_control, sliding_observer);
   }
 
   path_following_->set_stop_at_the_end(get_stop_at_the_end(node_));
@@ -142,12 +148,15 @@ void PathFollowing<CommandType>::process_matching_info_(
   core::Twist2D filtered_twist = to_romea(msg->twist);
   std::vector<core::PathMatchedPoint2D> matchedPoints = to_romea(msg->matched_points);
 
+  core::TimePoint stamp = to_romea_time(msg->header.stamp);
+
   if (cmd_interface_->is_started()) {
     if (logger_) {
       logger_->addEntry("time", rclcpp::Time(msg->header.stamp).seconds());
     }
 
     auto command = path_following_->compute_command(
+      stamp,
       setpoint_.load(),
       command_limits_.load(),
       matchedPoints,
