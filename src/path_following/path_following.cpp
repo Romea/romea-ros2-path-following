@@ -170,7 +170,11 @@ void PathFollowing<CommandType>::process_matching_info_(
     }
 
     if (logger_) {
-      logger_->writeRow();
+      if (command) {
+        logger_->writeRow();
+      } else {
+        logger_->clearRow();
+      }
     }
   }
 }
