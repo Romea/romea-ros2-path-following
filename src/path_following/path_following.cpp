@@ -131,14 +131,6 @@ PathFollowing<CommandType>::update_setpoint_(const std::vector<rclcpp::Parameter
      get_parameter_value_or<double>(
        parameters, "setpoint.desired_course_deviation", current_setpoint.course_deviation)});
 
-  {
-    auto sp = setpoint_.load();
-    RCLCPP_INFO_STREAM(this->node_->get_logger(), "setpoint.linear_speed: " << sp.linear_speed);
-    RCLCPP_INFO_STREAM(
-      this->node_->get_logger(), "setpoint.lateral_deviation: " << sp.lateral_deviation);
-    RCLCPP_INFO_STREAM(
-      this->node_->get_logger(), "setpoint.course_deviation: " << sp.course_deviation);
-  }
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";
